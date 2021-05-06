@@ -11,9 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class WarehouseItemDto {
+public class WarehouseItemDtoWithoutId {
 
-    private Long id;
     private Double amount;
     private ItemDtoWithoutId item;
 

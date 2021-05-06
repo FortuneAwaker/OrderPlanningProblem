@@ -6,19 +6,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class WarehouseDtoWithoutId {
+public class WarehouseItemDtoWithId {
 
-    private String identifier;
-    private Double latitude;
-    private Double longitude;
-    private List<WarehouseItemDtoWithoutId> items = new ArrayList<>();
+    private Long id;
+    private Double amount;
+    private ItemDtoWithId item;
 
 }

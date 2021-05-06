@@ -1,11 +1,8 @@
 package com.itechart.orderplanningproblem.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itechart.orderplanningproblem.dto.ItemDtoWithId;
-import com.itechart.orderplanningproblem.dto.ItemDtoWithoutId;
 import com.itechart.orderplanningproblem.dto.WarehouseDtoWithId;
 import com.itechart.orderplanningproblem.dto.WarehouseDtoWithoutId;
-import com.itechart.orderplanningproblem.dto.WarehouseItemDto;
 import com.itechart.orderplanningproblem.entity.Item;
 import com.itechart.orderplanningproblem.entity.Warehouse;
 import com.itechart.orderplanningproblem.entity.WarehouseItem;
@@ -19,7 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -42,7 +38,7 @@ public class WarehouseService {
             throw new UnprocessableEntityException(WAREHOUSE_IDENTIFIER_SHOULD_BE_UNIQUE_LITERAL);
         }
         Warehouse warehouseFromDto = objectMapper.convertValue(warehouseDtoWithoutId, Warehouse.class);
-        warehouseFromDto = mapWarehouseItems(warehouseFromDto);
+        mapWarehouseItems(warehouseFromDto);
         Warehouse createdWarehouse = warehouseRepository.save(warehouseFromDto);
         return objectMapper.convertValue(createdWarehouse, WarehouseDtoWithId.class);
     }
@@ -73,12 +69,11 @@ public class WarehouseService {
         warehouseRepository.deleteByIdentifier(identifier);
     }
 
-    private Warehouse mapWarehouseItems(Warehouse warehouse) {
+    private void mapWarehouseItems(Warehouse warehouse) {
         for (WarehouseItem item : warehouse.getItems()) {
             item.setWarehouse(warehouse);
             findByNameOrCreateItemToPersist(item.getItem());
         }
-        return warehouse;
     }
 
     private void findByNameOrCreateItemToPersist(Item item) {
