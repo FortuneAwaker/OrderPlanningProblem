@@ -29,3 +29,96 @@ databaseChangeLog:
                   type: double
                   constraints:
                     nullable: false
+  - changeSet:
+      id: create-table-order
+      author: alexander_popovich
+      changes:
+        - createTable:
+            tableName: order
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: item_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: amount
+                  type: double
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: create-item-fk-of-order
+      author: alexander_popovich
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: item_id
+            baseTableName: order
+            constraintName: item_fk_order_item
+            referencedColumnNames: id
+            referencedTableName: item
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+
+  - changeSet:
+      id: create-table-distance
+      author: alexander_popovich
+      changes:
+        - createTable:
+            tableName: distance
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: customer_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: warehouse_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: distance_value
+                  type: double
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: create-customer-fk-of-distance
+      author: alexander_popovich
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: customer_id
+            baseTableName: distance
+            constraintName: customer_fk_distance
+            referencedColumnNames: id
+            referencedTableName: customer
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+
+  - changeSet:
+      id: create-warehouse-fk-of-distance
+      author: alexander_popovich
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: warehouse_id
+            baseTableName: distance
+            constraintName: warehouse_fk_distance
+            referencedColumnNames: id
+            referencedTableName: warehouse
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+
