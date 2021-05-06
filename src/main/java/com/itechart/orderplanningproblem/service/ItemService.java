@@ -48,26 +48,18 @@ public class ItemService {
 
     @Transactional
     public void deleteById(final Long id) {
-        try {
-            if (itemRepository.findById(id).isEmpty()) {
-                return;
-            }
-            itemRepository.deleteById(id);
-        } catch (Exception exception) {
-            throw new UnprocessableEntityException("Item can't be deleted!");
+        if (itemRepository.findById(id).isEmpty()) {
+            return;
         }
+        itemRepository.deleteById(id);
     }
 
     @Transactional
     public void deleteByName(final String name) {
-        try {
-            if (itemRepository.readByName(name).isEmpty()) {
-                return;
-            }
-            itemRepository.deleteByName(name);
-        } catch (Exception exception) {
-            throw new UnprocessableEntityException("Item can't be deleted!");
+        if (itemRepository.readByName(name).isEmpty()) {
+            return;
         }
+        itemRepository.deleteByName(name);
     }
 
 }

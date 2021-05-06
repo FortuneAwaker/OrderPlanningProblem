@@ -88,10 +88,10 @@ databaseChangeLog:
             baseColumnNames: item_id
             baseTableName: warehouse_item
             constraintName: item_fk_warehouse_item
-            deferrable: false
-            initiallyDeferred: false
             referencedColumnNames: id
             referencedTableName: item
+            onDelete: RESTRICT
+            onUpdate: CASCADE
 
   - changeSet:
       id: create-warehouse-fk-of-warehouse-item
@@ -101,7 +101,8 @@ databaseChangeLog:
             baseColumnNames: warehouse_id
             baseTableName: warehouse_item
             constraintName: warehouse_fk_warehouse_item
-            deferrable: false
-            initiallyDeferred: false
             referencedColumnNames: id
             referencedTableName: warehouse
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+

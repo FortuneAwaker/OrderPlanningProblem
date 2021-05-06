@@ -1,8 +1,8 @@
 package com.itechart.orderplanningproblem.controller;
 
-import com.itechart.orderplanningproblem.dto.ItemDtoWithId;
-import com.itechart.orderplanningproblem.dto.ItemDtoWithoutId;
-import com.itechart.orderplanningproblem.service.ItemService;
+import com.itechart.orderplanningproblem.dto.WarehouseDtoWithId;
+import com.itechart.orderplanningproblem.dto.WarehouseDtoWithoutId;
+import com.itechart.orderplanningproblem.service.WarehouseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,41 +22,40 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 
 @RestController
+@RequestMapping("/api/v1/warehouses")
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/items")
-public class ItemController {
+public class WarehouseController {
 
-    private final ItemService itemService;
+    private final WarehouseService warehouseService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ItemDtoWithId createItem(@Valid @RequestBody ItemDtoWithoutId itemDto) {
-        return itemService.create(itemDto);
+    public WarehouseDtoWithId createWarehouse(@Valid @RequestBody WarehouseDtoWithoutId warehouseDtoWithoutId) {
+        return warehouseService.create(warehouseDtoWithoutId);
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Page<ItemDtoWithId> getPage(
+    public Page<WarehouseDtoWithId> getPage(
             @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        return itemService.readPage(pageable);
+        return warehouseService.readPage(pageable);
     }
 
     @GetMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public ItemDtoWithId getById(@PathVariable Long id) {
-        return itemService.readById(id);
+    public WarehouseDtoWithId getById(@PathVariable Long id) {
+        return warehouseService.readById(id);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteById(@PathVariable Long id) {
-        itemService.deleteById(id);
+        warehouseService.deleteById(id);
     }
 
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteByName(@RequestParam String name) {
-        itemService.deleteByName(name);
+    public void deleteByIdentifier(@RequestParam String identifier) {
+        warehouseService.deleteByIdentifier(identifier);
     }
 
 }

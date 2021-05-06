@@ -14,6 +14,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     @Query("select i from Item i where i.name = :name")
     Optional<Item> readByName(@Param("name") final String name);
 
-    void deleteByName(@Param("name") final String name);
+    void deleteByName(final String name);
 
 }

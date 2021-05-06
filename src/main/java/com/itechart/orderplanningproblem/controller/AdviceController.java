@@ -4,6 +4,7 @@ import com.itechart.orderplanningproblem.dto.ExceptionDto;
 import com.itechart.orderplanningproblem.exception.ResourceNotFoundException;
 import com.itechart.orderplanningproblem.exception.UnprocessableEntityException;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +40,15 @@ public class AdviceController extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(
                 new ExceptionDto(INTERNAL_SERVER_ERROR.value(), exception.getMessage(),
                         Timestamp.valueOf(LocalDateTime.now()).toString()), INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(value = {DataIntegrityViolationException.class})
+    public ResponseEntity<ExceptionDto> handleDataIntegrityViolationException(
+            final DataIntegrityViolationException exception) {
+        return new ResponseEntity<>(
+                new ExceptionDto(UNPROCESSABLE_ENTITY.value(),
+                        "Operation can't be performed, because it will violate data integrity.",
+                        Timestamp.valueOf(LocalDateTime.now()).toString()), UNPROCESSABLE_ENTITY);
     }
 
 
