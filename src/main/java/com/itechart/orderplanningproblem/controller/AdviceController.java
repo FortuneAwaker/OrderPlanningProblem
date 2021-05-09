@@ -1,6 +1,7 @@
 package com.itechart.orderplanningproblem.controller;
 
 import com.itechart.orderplanningproblem.dto.ExceptionDto;
+import com.itechart.orderplanningproblem.exception.ConflictWithCurrentWarehouseStateException;
 import com.itechart.orderplanningproblem.exception.ResourceNotFoundException;
 import com.itechart.orderplanningproblem.exception.UnprocessableEntityException;
 import org.springframework.beans.TypeMismatchException;
@@ -137,6 +138,12 @@ public class AdviceController extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({UnprocessableEntityException.class})
     public ResponseEntity<ExceptionDto> handleNotUnprocessableEntity(final UnprocessableEntityException e) {
+        return new ResponseEntity<>(buildException(UNPROCESSABLE_ENTITY.value(), e.getMessage()), UNPROCESSABLE_ENTITY);
+    }
+
+    @ExceptionHandler({ConflictWithCurrentWarehouseStateException.class})
+    public ResponseEntity<ExceptionDto> handleConflictWithCurrentWarehouseStateException(
+            final ConflictWithCurrentWarehouseStateException e) {
         return new ResponseEntity<>(buildException(UNPROCESSABLE_ENTITY.value(), e.getMessage()), UNPROCESSABLE_ENTITY);
     }
 

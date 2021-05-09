@@ -1,10 +1,10 @@
 package com.itechart.orderplanningproblem.controller;
 
-import com.itechart.orderplanningproblem.dto.ItemDtoWithId;
-import com.itechart.orderplanningproblem.dto.ItemDtoWithoutId;
+import com.itechart.orderplanningproblem.dto.CustomerDtoWithId;
+import com.itechart.orderplanningproblem.dto.CustomerDtoWithoutId;
 import com.itechart.orderplanningproblem.exception.ResourceNotFoundException;
 import com.itechart.orderplanningproblem.exception.UnprocessableEntityException;
-import com.itechart.orderplanningproblem.service.ItemService;
+import com.itechart.orderplanningproblem.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,57 +30,50 @@ import javax.validation.constraints.Size;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/items")
+@RequestMapping("/api/v1/customers")
 @Validated
-public class ItemController {
+public class CustomerController {
 
-    private final ItemService itemService;
+    private final CustomerService customerService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ItemDtoWithId createItem(@Valid @RequestBody ItemDtoWithoutId itemDto) throws UnprocessableEntityException {
-        return itemService.create(itemDto);
+    public CustomerDtoWithId createCustomer(@Valid @RequestBody CustomerDtoWithoutId customerDto)
+            throws UnprocessableEntityException {
+        return customerService.create(customerDto);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ItemDtoWithId updateItemName(
+    public CustomerDtoWithId updateCustomerName(
             @Min(value = 1, message = "id must be more or equals 1")
             @PathVariable Long id,
             @Pattern(regexp = "^[A-Z][0-9A-Za-z\\s-]*$", message = "Name should match pattern ^[A-Z][0-9A-Za-z\\s-]*$")
             @Size(min = 3, max = 50, message = "Name should be longer than 3 letters and shorter than 50.")
             @RequestParam String newName)
             throws ResourceNotFoundException, UnprocessableEntityException {
-        return itemService.updateName(id, newName);
+        return customerService.updateName(id, newName);
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Page<ItemDtoWithId> getPage(
+    public Page<CustomerDtoWithId> getPage(
             @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        return itemService.readPage(pageable);
+        return customerService.readPage(pageable);
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ItemDtoWithId getById(
-            @Min(value = 1, message = "id must be more or equals 1")
-            @PathVariable Long id) throws ResourceNotFoundException {
-        return itemService.readById(id);
+    public CustomerDtoWithId getById(@PathVariable @Min(value = 1,
+            message = "id must be more or equals 1") Long id) throws ResourceNotFoundException {
+        return customerService.readById(id);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteById(
-            @Min(value = 1, message = "id must be more or equals 1")
-            @PathVariable Long id) {
-        itemService.deleteById(id);
-    }
-
-    @DeleteMapping
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteByName(@RequestParam String name) {
-        itemService.deleteByName(name);
+    public void deleteById(@PathVariable @Min(value = 1,
+            message = "id must be more or equals 1") Long id) {
+        customerService.deleteById(id);
     }
 
 }

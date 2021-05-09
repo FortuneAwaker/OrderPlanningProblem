@@ -6,15 +6,21 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.Valid;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotNull;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class WarehouseItemDto {
+public class WarehouseItemDtoWithoutId {
 
-    private Long id;
+    @NotNull(message = "Amount is mandatory")
+    @DecimalMin(value = "0.0", message = "Amount can't be less than 0!")
     private Double amount;
+    @Valid
     private ItemDtoWithoutId item;
 
 }
