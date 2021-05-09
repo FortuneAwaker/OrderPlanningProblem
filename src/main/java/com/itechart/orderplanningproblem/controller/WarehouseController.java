@@ -2,6 +2,12 @@ package com.itechart.orderplanningproblem.controller;
 
 import com.itechart.orderplanningproblem.dto.WarehouseDtoWithId;
 import com.itechart.orderplanningproblem.dto.WarehouseDtoWithoutId;
+import com.itechart.orderplanningproblem.dto.WarehouseItemChangeAmountDto;
+import com.itechart.orderplanningproblem.dto.WarehouseItemDtoWithId;
+import com.itechart.orderplanningproblem.dto.WarehouseItemDtoWithoutId;
+import com.itechart.orderplanningproblem.exception.ConflictWithCurrentWarehouseStateException;
+import com.itechart.orderplanningproblem.exception.ResourceNotFoundException;
+import com.itechart.orderplanningproblem.exception.UnprocessableEntityException;
 import com.itechart.orderplanningproblem.service.WarehouseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -13,6 +19,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,7 +37,8 @@ public class WarehouseController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public WarehouseDtoWithId createWarehouse(@Valid @RequestBody WarehouseDtoWithoutId warehouseDtoWithoutId) {
+    public WarehouseDtoWithId createWarehouse(@Valid @RequestBody WarehouseDtoWithoutId warehouseDtoWithoutId)
+            throws UnprocessableEntityException {
         return warehouseService.create(warehouseDtoWithoutId);
     }
 
@@ -42,8 +50,18 @@ public class WarehouseController {
     }
 
     @GetMapping("/{id}")
-    public WarehouseDtoWithId getById(@PathVariable Long id) {
+    public WarehouseDtoWithId getById(@PathVariable Long id) throws ResourceNotFoundException {
         return warehouseService.readById(id);
+    }
+
+    @PutMapping("/{warehouseId}/item")
+    public WarehouseDtoWithId putItemToWarehouse(
+            @Valid @RequestBody WarehouseItemDtoWithoutId warehouseItemDtoWithoutId,
+            @PathVariable Long warehouseId,
+            @RequestParam String operation)
+            throws ResourceNotFoundException, ConflictWithCurrentWarehouseStateException, UnprocessableEntityException {
+        return warehouseService.changeAmountOfWarehouseItem(new WarehouseItemChangeAmountDto(warehouseId,
+                warehouseItemDtoWithoutId.getAmount(), warehouseItemDtoWithoutId.getItem(), operation));
     }
 
     @DeleteMapping("/{id}")

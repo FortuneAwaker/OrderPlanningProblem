@@ -2,6 +2,8 @@ package com.itechart.orderplanningproblem.controller;
 
 import com.itechart.orderplanningproblem.dto.ItemDtoWithId;
 import com.itechart.orderplanningproblem.dto.ItemDtoWithoutId;
+import com.itechart.orderplanningproblem.exception.ResourceNotFoundException;
+import com.itechart.orderplanningproblem.exception.UnprocessableEntityException;
 import com.itechart.orderplanningproblem.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,7 +32,7 @@ public class ItemController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ItemDtoWithId createItem(@Valid @RequestBody ItemDtoWithoutId itemDto) {
+    public ItemDtoWithId createItem(@Valid @RequestBody ItemDtoWithoutId itemDto) throws UnprocessableEntityException {
         return itemService.create(itemDto);
     }
 
@@ -43,7 +45,7 @@ public class ItemController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ItemDtoWithId getById(@PathVariable Long id) {
+    public ItemDtoWithId getById(@PathVariable Long id) throws ResourceNotFoundException {
         return itemService.readById(id);
     }
 

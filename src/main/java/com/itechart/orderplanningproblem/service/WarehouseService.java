@@ -3,9 +3,11 @@ package com.itechart.orderplanningproblem.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itechart.orderplanningproblem.dto.WarehouseDtoWithId;
 import com.itechart.orderplanningproblem.dto.WarehouseDtoWithoutId;
+import com.itechart.orderplanningproblem.dto.WarehouseItemChangeAmountDto;
 import com.itechart.orderplanningproblem.entity.Item;
 import com.itechart.orderplanningproblem.entity.Warehouse;
 import com.itechart.orderplanningproblem.entity.WarehouseItem;
+import com.itechart.orderplanningproblem.exception.ConflictWithCurrentWarehouseStateException;
 import com.itechart.orderplanningproblem.exception.ResourceNotFoundException;
 import com.itechart.orderplanningproblem.exception.UnprocessableEntityException;
 import com.itechart.orderplanningproblem.repository.ItemRepository;
@@ -31,7 +33,7 @@ public class WarehouseService {
             " already exists. Warehouse identifier should be unique!";
 
     @Transactional
-    public WarehouseDtoWithId create(final WarehouseDtoWithoutId warehouseDtoWithoutId) {
+    public WarehouseDtoWithId create(final WarehouseDtoWithoutId warehouseDtoWithoutId) throws UnprocessableEntityException {
         Optional<Warehouse> fromDbByIdentifier = warehouseRepository.readByIdentifier(
                 warehouseDtoWithoutId.getIdentifier());
         if (fromDbByIdentifier.isPresent()) {
@@ -43,7 +45,73 @@ public class WarehouseService {
         return objectMapper.convertValue(createdWarehouse, WarehouseDtoWithId.class);
     }
 
-    public WarehouseDtoWithId readById(final Long id) {
+    @Transactional
+    public WarehouseDtoWithId changeAmountOfWarehouseItem(
+            final WarehouseItemChangeAmountDto warehouseItemChangeAmountDto)
+            throws ResourceNotFoundException, UnprocessableEntityException, ConflictWithCurrentWarehouseStateException {
+        if (warehouseItemChangeAmountDto.getOperation().equals("put")) {
+            return increaseAmountOfWarehouseItem(warehouseItemChangeAmountDto);
+        }
+        if (warehouseItemChangeAmountDto.getOperation().equals("remove")) {
+            return decreaseAmountOfWarehouseItem(warehouseItemChangeAmountDto);
+        }
+        throw new UnprocessableEntityException("Operation must have value \"put\" or \"remove\"!");
+    }
+
+
+    private WarehouseDtoWithId increaseAmountOfWarehouseItem(
+            final WarehouseItemChangeAmountDto warehouseItemChangeAmountDto) throws ResourceNotFoundException {
+        Warehouse warehouse = findWarehouseById(warehouseItemChangeAmountDto.getWarehouseId());
+        boolean processed = false;
+        for (WarehouseItem item : warehouse.getItems()
+        ) {
+            if (item.getItem().getName().equals(warehouseItemChangeAmountDto.getItem().getName())) {
+                item.setAmount(item.getAmount() + warehouseItemChangeAmountDto.getAmount());
+                processed = true;
+                break;
+            }
+        }
+        if (!processed) {
+            Item itemToSave = objectMapper.convertValue(warehouseItemChangeAmountDto.getItem(), Item.class);
+            findByNameOrCreateItemToPersist(itemToSave);
+            warehouse.getItems().add(new WarehouseItem(null, warehouseItemChangeAmountDto.getAmount(),
+                    itemToSave, warehouse));
+        }
+        Warehouse updatedWarehouse = warehouseRepository.save(warehouse);
+        return objectMapper.convertValue(updatedWarehouse, WarehouseDtoWithId.class);
+    }
+
+    private WarehouseDtoWithId decreaseAmountOfWarehouseItem(
+            final WarehouseItemChangeAmountDto warehouseItemChangeAmountDto)
+            throws ResourceNotFoundException, ConflictWithCurrentWarehouseStateException {
+        Warehouse warehouse = findWarehouseById(warehouseItemChangeAmountDto.getWarehouseId());
+        boolean processed = false;
+        for (WarehouseItem item : warehouse.getItems()
+        ) {
+            if (item.getItem().getName().equals(warehouseItemChangeAmountDto.getItem().getName())) {
+                if (item.getAmount() - warehouseItemChangeAmountDto.getAmount() >= 0) {
+                    item.setAmount(item.getAmount() - warehouseItemChangeAmountDto.getAmount());
+                    if (item.getAmount() == 0) {
+                        warehouse.getItems().remove(item);
+                    }
+                    processed = true;
+                    break;
+                } else {
+                    throw new ConflictWithCurrentWarehouseStateException("It is impossible to remove more items " +
+                            "than are in the warehouse! Current value of item with name " + item.getItem().getName()
+                            + " is " + item.getAmount() + ".");
+                }
+            }
+        }
+        if (!processed) {
+            throw new ResourceNotFoundException("There is no item with such name in warehouse with id "
+                    + warehouse.getId());
+        }
+        Warehouse updatedWarehouse = warehouseRepository.save(warehouse);
+        return objectMapper.convertValue(updatedWarehouse, WarehouseDtoWithId.class);
+    }
+
+    public WarehouseDtoWithId readById(final Long id) throws ResourceNotFoundException {
         return warehouseRepository.findById(id).map(item -> objectMapper.convertValue(item, WarehouseDtoWithId.class))
                 .orElseThrow(() -> new ResourceNotFoundException("Warehouse with id = " + id + " doesn't exist"));
     }
@@ -83,6 +151,14 @@ public class WarehouseService {
         } else {
             itemRepository.save(item);
         }
+    }
+
+    private Warehouse findWarehouseById(final Long warehouseId) throws ResourceNotFoundException {
+        Optional<Warehouse> fromDbById = warehouseRepository.findById(warehouseId);
+        if (fromDbById.isEmpty()) {
+            throw new ResourceNotFoundException("Warehouse with id = " + warehouseId + " doesn't exist");
+        }
+        return fromDbById.get();
     }
 
 }

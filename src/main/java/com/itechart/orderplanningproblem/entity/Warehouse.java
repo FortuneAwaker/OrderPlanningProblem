@@ -36,7 +36,7 @@ public class Warehouse {
     private Double latitude;
     @Column(nullable = false)
     private Double longitude;
-    @OneToMany(mappedBy = "warehouse", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @OneToMany(mappedBy = "warehouse", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval = true)
     private List<WarehouseItem> items = new ArrayList<>();
 
 }

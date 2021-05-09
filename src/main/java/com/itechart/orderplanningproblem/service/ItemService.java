@@ -26,7 +26,7 @@ public class ItemService {
             "Item name should be unique!";
 
     @Transactional
-    public ItemDtoWithId create(final ItemDtoWithoutId itemDtoWithoutId) {
+    public ItemDtoWithId create(final ItemDtoWithoutId itemDtoWithoutId) throws UnprocessableEntityException {
         Optional<Item> fromDbByName = itemRepository.readByName(itemDtoWithoutId.getName());
         if (fromDbByName.isPresent()) {
             throw new UnprocessableEntityException(ITEM_NAME_SHOULD_BE_UNIQUE_LITERAL);
@@ -36,7 +36,7 @@ public class ItemService {
         return objectMapper.convertValue(createdItem, ItemDtoWithId.class);
     }
 
-    public ItemDtoWithId readById(final Long id) {
+    public ItemDtoWithId readById(final Long id) throws ResourceNotFoundException {
         return itemRepository.findById(id).map(item -> objectMapper.convertValue(item, ItemDtoWithId.class))
                 .orElseThrow(() -> new ResourceNotFoundException("Item with id = " + id + " doesn't exist"));
     }
