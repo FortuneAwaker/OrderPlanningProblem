@@ -4,12 +4,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itechart.orderplanningproblem.dto.WarehouseDtoWithId;
 import com.itechart.orderplanningproblem.dto.WarehouseDtoWithoutId;
 import com.itechart.orderplanningproblem.dto.WarehouseItemChangeAmountDto;
+import com.itechart.orderplanningproblem.entity.Customer;
+import com.itechart.orderplanningproblem.entity.Distance;
 import com.itechart.orderplanningproblem.entity.Item;
 import com.itechart.orderplanningproblem.entity.Warehouse;
 import com.itechart.orderplanningproblem.entity.WarehouseItem;
 import com.itechart.orderplanningproblem.exception.ConflictWithCurrentWarehouseStateException;
 import com.itechart.orderplanningproblem.exception.ResourceNotFoundException;
 import com.itechart.orderplanningproblem.exception.UnprocessableEntityException;
+import com.itechart.orderplanningproblem.repository.CustomerRepository;
+import com.itechart.orderplanningproblem.repository.DistanceRepository;
 import com.itechart.orderplanningproblem.repository.ItemRepository;
 import com.itechart.orderplanningproblem.repository.WarehouseRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +22,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -26,8 +32,10 @@ public class WarehouseService {
 
     private final WarehouseRepository warehouseRepository;
     private final ItemRepository itemRepository;
-
+    private final CustomerRepository customerRepository;
+    private final DistanceRepository distanceRepository;
     private final ObjectMapper objectMapper;
+    private final DistanceService distanceService;
 
     private static final String WAREHOUSE_IDENTIFIER_SHOULD_BE_UNIQUE_LITERAL = "Warehouse with such identifier" +
             " already exists. Warehouse identifier should be unique!";
@@ -42,7 +50,21 @@ public class WarehouseService {
         Warehouse warehouseFromDto = objectMapper.convertValue(warehouseDtoWithoutId, Warehouse.class);
         mapWarehouseItems(warehouseFromDto);
         Warehouse createdWarehouse = warehouseRepository.save(warehouseFromDto);
+        mapWarehouseToExistentCustomers(createdWarehouse);
         return objectMapper.convertValue(createdWarehouse, WarehouseDtoWithId.class);
+    }
+
+    private void mapWarehouseToExistentCustomers(final Warehouse warehouse) {
+        List<Customer> allCustomers = customerRepository.findAll();
+        List<Distance> distances = new ArrayList<>();
+        for (Customer customer: allCustomers) {
+            double distanceValue = distanceService.getDistanceByLatitudeAndLongitude(
+                    customer.getLatitude(), customer.getLongitude(),
+                    warehouse.getLatitude(), warehouse.getLongitude());
+            Distance distance = new Distance(null, distanceValue, customer, warehouse);
+            distances.add(distance);
+        }
+        distanceRepository.saveAll(distances);
     }
 
     @Transactional
@@ -55,7 +77,7 @@ public class WarehouseService {
         if (warehouseItemChangeAmountDto.getOperation().equals("remove")) {
             return decreaseAmountOfWarehouseItem(warehouseItemChangeAmountDto);
         }
-        throw new UnprocessableEntityException("Operation must have value \"put\" or \"remove\"!");
+        throw new UnprocessableEntityException("Operation must have value <put> or <remove>!");
     }
 
 
@@ -112,13 +134,14 @@ public class WarehouseService {
     }
 
     public WarehouseDtoWithId readById(final Long id) throws ResourceNotFoundException {
-        return warehouseRepository.findById(id).map(item -> objectMapper.convertValue(item, WarehouseDtoWithId.class))
+        return warehouseRepository.findById(id).map(
+                warehouse -> objectMapper.convertValue(warehouse, WarehouseDtoWithId.class))
                 .orElseThrow(() -> new ResourceNotFoundException("Warehouse with id = " + id + " doesn't exist"));
     }
 
     public Page<WarehouseDtoWithId> readPage(Pageable pageable) {
         return warehouseRepository.findAll(pageable)
-                .map(item -> objectMapper.convertValue(item, WarehouseDtoWithId.class));
+                .map(warehouse -> objectMapper.convertValue(warehouse, WarehouseDtoWithId.class));
     }
 
     @Transactional
