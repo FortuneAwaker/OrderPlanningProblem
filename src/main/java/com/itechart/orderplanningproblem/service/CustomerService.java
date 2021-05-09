@@ -35,11 +35,9 @@ public class CustomerService {
             "Customer name should be unique!";
 
     @Transactional
-    public CustomerDtoWithId create(final CustomerDtoWithoutId customerDtoWithoutId) throws UnprocessableEntityException {
-        Optional<Customer> fromDbByName = customerRepository.readByName(customerDtoWithoutId.getName());
-        if (fromDbByName.isPresent()) {
-            throw new UnprocessableEntityException(CUSTOMER_NAME_SHOULD_BE_UNIQUE_LITERAL);
-        }
+    public CustomerDtoWithId create(final CustomerDtoWithoutId customerDtoWithoutId)
+            throws UnprocessableEntityException {
+        checkInDbByName(customerDtoWithoutId.getName());
         Customer customerFromDto = objectMapper.convertValue(customerDtoWithoutId, Customer.class);
         Customer createdCustomer = customerRepository.save(customerFromDto);
         mapCustomerToExistentWarehouses(createdCustomer);
@@ -62,12 +60,26 @@ public class CustomerService {
     public CustomerDtoWithId readById(final Long id) throws ResourceNotFoundException {
         return customerRepository.findById(id).map(
                 customer -> objectMapper.convertValue(customer, CustomerDtoWithId.class))
-                .orElseThrow(() -> new ResourceNotFoundException("Item with id = " + id + " doesn't exist"));
+                .orElseThrow(() -> new ResourceNotFoundException("Customer with id = " + id + " doesn't exist"));
     }
 
     public Page<CustomerDtoWithId> readPage(Pageable pageable) {
         return customerRepository.findAll(pageable)
                 .map(customer -> objectMapper.convertValue(customer, CustomerDtoWithId.class));
+    }
+
+    @Transactional
+    public CustomerDtoWithId updateName(final Long id, final String newName)
+            throws ResourceNotFoundException, UnprocessableEntityException {
+        Optional<Customer> fromDbById = customerRepository.findById(id);
+        if (fromDbById.isEmpty()) {
+            throw new ResourceNotFoundException("Customer with id = " + id + " doesn't exist");
+        }
+        checkInDbByName(newName);
+        Customer customer = fromDbById.get();
+        customer.setName(newName);
+        Customer savedCustomer = customerRepository.save(customer);
+        return objectMapper.convertValue(savedCustomer, CustomerDtoWithId.class);
     }
 
     @Transactional
@@ -77,5 +89,12 @@ public class CustomerService {
         }
         distanceRepository.deleteByCustomerId(id);
         customerRepository.deleteById(id);
+    }
+
+    private void checkInDbByName(final String customerName) throws UnprocessableEntityException {
+        Optional<Customer> fromDbByName = customerRepository.readByName(customerName);
+        if (fromDbByName.isPresent()) {
+            throw new UnprocessableEntityException(CUSTOMER_NAME_SHOULD_BE_UNIQUE_LITERAL);
+        }
     }
 }
