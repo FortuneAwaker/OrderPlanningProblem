@@ -2,7 +2,6 @@ package com.itechart.orderplanningproblem.controller;
 
 import com.itechart.orderplanningproblem.dto.CustomerDtoWithId;
 import com.itechart.orderplanningproblem.dto.CustomerDtoWithoutId;
-import com.itechart.orderplanningproblem.dto.ItemDtoWithId;
 import com.itechart.orderplanningproblem.exception.ResourceNotFoundException;
 import com.itechart.orderplanningproblem.exception.UnprocessableEntityException;
 import com.itechart.orderplanningproblem.service.CustomerService;
@@ -40,7 +39,7 @@ public class CustomerController {
     }
 
     @PutMapping("/{id}")
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     public CustomerDtoWithId createItem(@PathVariable Long id,
                                         @RequestParam String newName)
             throws ResourceNotFoundException, UnprocessableEntityException {

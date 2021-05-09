@@ -27,13 +27,24 @@ public class ItemService {
 
     @Transactional
     public ItemDtoWithId create(final ItemDtoWithoutId itemDtoWithoutId) throws UnprocessableEntityException {
-        Optional<Item> fromDbByName = itemRepository.readByName(itemDtoWithoutId.getName());
-        if (fromDbByName.isPresent()) {
-            throw new UnprocessableEntityException(ITEM_NAME_SHOULD_BE_UNIQUE_LITERAL);
-        }
+        checkInDbByName(itemDtoWithoutId.getName());
         Item itemFromDto = objectMapper.convertValue(itemDtoWithoutId, Item.class);
         Item createdItem = itemRepository.save(itemFromDto);
         return objectMapper.convertValue(createdItem, ItemDtoWithId.class);
+    }
+
+    @Transactional
+    public ItemDtoWithId updateName(final Long id, final String newName)
+            throws ResourceNotFoundException, UnprocessableEntityException {
+        Optional<Item> fromDbById = itemRepository.findById(id);
+        if (fromDbById.isEmpty()) {
+            throw new ResourceNotFoundException("Item with id = " + id + " doesn't exist");
+        }
+        checkInDbByName(newName);
+        Item item = fromDbById.get();
+        item.setName(newName);
+        Item savedItem = itemRepository.save(item);
+        return objectMapper.convertValue(savedItem, ItemDtoWithId.class);
     }
 
     public ItemDtoWithId readById(final Long id) throws ResourceNotFoundException {
@@ -60,6 +71,13 @@ public class ItemService {
             return;
         }
         itemRepository.deleteByName(name);
+    }
+
+    private void checkInDbByName(final String itemName) throws UnprocessableEntityException {
+        Optional<Item> fromDbByName = itemRepository.readByName(itemName);
+        if (fromDbByName.isPresent()) {
+            throw new UnprocessableEntityException(ITEM_NAME_SHOULD_BE_UNIQUE_LITERAL);
+        }
     }
 
 }

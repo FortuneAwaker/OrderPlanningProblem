@@ -42,11 +42,7 @@ public class WarehouseService {
 
     @Transactional
     public WarehouseDtoWithId create(final WarehouseDtoWithoutId warehouseDtoWithoutId) throws UnprocessableEntityException {
-        Optional<Warehouse> fromDbByIdentifier = warehouseRepository.readByIdentifier(
-                warehouseDtoWithoutId.getIdentifier());
-        if (fromDbByIdentifier.isPresent()) {
-            throw new UnprocessableEntityException(WAREHOUSE_IDENTIFIER_SHOULD_BE_UNIQUE_LITERAL);
-        }
+        checkInDbByIdentifier(warehouseDtoWithoutId.getIdentifier());
         Warehouse warehouseFromDto = objectMapper.convertValue(warehouseDtoWithoutId, Warehouse.class);
         mapWarehouseItems(warehouseFromDto);
         Warehouse createdWarehouse = warehouseRepository.save(warehouseFromDto);
@@ -65,6 +61,16 @@ public class WarehouseService {
             distances.add(distance);
         }
         distanceRepository.saveAll(distances);
+    }
+
+    @Transactional
+    public WarehouseDtoWithId updateIdentifier(final Long id, final String newIdentifier)
+            throws ResourceNotFoundException, UnprocessableEntityException {
+        Warehouse warehouse = findWarehouseById(id);
+        checkInDbByIdentifier(newIdentifier);
+        warehouse.setIdentifier(newIdentifier);
+        Warehouse savedWarehouse = warehouseRepository.save(warehouse);
+        return objectMapper.convertValue(savedWarehouse, WarehouseDtoWithId.class);
     }
 
     @Transactional
@@ -184,6 +190,13 @@ public class WarehouseService {
             throw new ResourceNotFoundException("Warehouse with id = " + warehouseId + " doesn't exist");
         }
         return fromDbById.get();
+    }
+
+    private void checkInDbByIdentifier(final String identifier) throws UnprocessableEntityException {
+        Optional<Warehouse> fromDbByIdentifier = warehouseRepository.readByIdentifier(identifier);
+        if (fromDbByIdentifier.isPresent()) {
+            throw new UnprocessableEntityException(WAREHOUSE_IDENTIFIER_SHOULD_BE_UNIQUE_LITERAL);
+        }
     }
 
 }

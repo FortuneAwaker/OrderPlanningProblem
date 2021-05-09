@@ -3,7 +3,6 @@ package com.itechart.orderplanningproblem.controller;
 import com.itechart.orderplanningproblem.dto.WarehouseDtoWithId;
 import com.itechart.orderplanningproblem.dto.WarehouseDtoWithoutId;
 import com.itechart.orderplanningproblem.dto.WarehouseItemChangeAmountDto;
-import com.itechart.orderplanningproblem.dto.WarehouseItemDtoWithId;
 import com.itechart.orderplanningproblem.dto.WarehouseItemDtoWithoutId;
 import com.itechart.orderplanningproblem.exception.ConflictWithCurrentWarehouseStateException;
 import com.itechart.orderplanningproblem.exception.ResourceNotFoundException;
@@ -40,6 +39,14 @@ public class WarehouseController {
     public WarehouseDtoWithId createWarehouse(@Valid @RequestBody WarehouseDtoWithoutId warehouseDtoWithoutId)
             throws UnprocessableEntityException {
         return warehouseService.create(warehouseDtoWithoutId);
+    }
+
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public WarehouseDtoWithId createItem(@PathVariable Long id,
+                                    @RequestParam String newIdentifier)
+            throws ResourceNotFoundException, UnprocessableEntityException {
+        return warehouseService.updateIdentifier(id, newIdentifier);
     }
 
     @GetMapping
