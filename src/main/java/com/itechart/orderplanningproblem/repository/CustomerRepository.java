@@ -14,6 +14,4 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     @Query("select c from Customer c where c.name = :name")
     Optional<Customer> readByName(@Param("name") final String name);
 
-    void deleteByName(final String name);
-
 }

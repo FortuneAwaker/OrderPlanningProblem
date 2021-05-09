@@ -17,7 +17,7 @@ import javax.persistence.Table;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table
+@Table(name = "item_order")
 public class Order {
 
     @Id
@@ -25,8 +25,15 @@ public class Order {
     private Long id;
     @Column(nullable = false)
     private Double amount;
+    @Column(nullable = false)
+    private Double distance;
     @ManyToOne
     @JoinColumn(name = "item_id")
     private Item item;
-
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
+    @ManyToOne
+    @JoinColumn(name = "warehouse_id")
+    private Warehouse warehouse;
 }

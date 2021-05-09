@@ -149,6 +149,7 @@ public class WarehouseService {
         if (warehouseRepository.findById(id).isEmpty()) {
             return;
         }
+        distanceRepository.deleteByWarehouseId(id);
         warehouseRepository.deleteById(id);
     }
 
@@ -157,6 +158,7 @@ public class WarehouseService {
         if (warehouseRepository.readByIdentifier(identifier).isEmpty()) {
             return;
         }
+        distanceRepository.deleteByWarehouseIdentifier(identifier);
         warehouseRepository.deleteByIdentifier(identifier);
     }
 

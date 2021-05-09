@@ -34,7 +34,7 @@ databaseChangeLog:
       author: alexander_popovich
       changes:
         - createTable:
-            tableName: order
+            tableName: item_order
             columns:
               - column:
                   name: id
@@ -49,7 +49,22 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
+                  name: customer_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: warehouse_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
                   name: amount
+                  type: double
+                  constraints:
+                    nullable: false
+              - column:
+                  name: distance
                   type: double
                   constraints:
                     nullable: false
@@ -59,10 +74,34 @@ databaseChangeLog:
       changes:
         - addForeignKeyConstraint:
             baseColumnNames: item_id
-            baseTableName: order
+            baseTableName: item_order
             constraintName: item_fk_order_item
             referencedColumnNames: id
             referencedTableName: item
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+  - changeSet:
+      id: create-warehouse-fk-of-order
+      author: alexander_popovich
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: warehouse_id
+            baseTableName: item_order
+            constraintName: warehouse_fk_order_item
+            referencedColumnNames: id
+            referencedTableName: warehouse
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+  - changeSet:
+      id: create-customer-fk-of-order
+      author: alexander_popovich
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: customer_id
+            baseTableName: item_order
+            constraintName: customer_fk_order_item
+            referencedColumnNames: id
+            referencedTableName: customer
             onDelete: RESTRICT
             onUpdate: CASCADE
 
