@@ -20,7 +20,4 @@ public interface WarehouseRepository extends JpaRepository<Warehouse, Long> {
             " where d.customer.id = :customerId order by d.distanceValue asc")
     List<Warehouse> findWarehouseForCustomer(@Param("customerId") final Long customerId);
 
-    @Modifying
-    void deleteByIdentifier(final String identifier);
-
 }

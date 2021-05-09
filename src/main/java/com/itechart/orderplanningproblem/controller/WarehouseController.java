@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,10 +27,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 @RestController
 @RequestMapping("/api/v1/warehouses")
 @RequiredArgsConstructor
+@Validated
 public class WarehouseController {
 
     private final WarehouseService warehouseService;
@@ -43,8 +48,13 @@ public class WarehouseController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public WarehouseDtoWithId createItem(@PathVariable Long id,
-                                    @RequestParam String newIdentifier)
+    public WarehouseDtoWithId updateWarehouseIdentifier(
+            @Min(value = 1, message = "id must be more or equals 1")
+            @PathVariable Long id,
+            @Pattern(regexp = "^[A-Z][0-9A-Za-z\\s-]*$",
+                    message = "Identifier should match pattern ^[A-Z][0-9A-Za-z\\s-]*$")
+            @Size(min = 3, max = 50, message = "Identifier should be longer than 3 letters and shorter than 50.")
+            @RequestParam String newIdentifier)
             throws ResourceNotFoundException, UnprocessableEntityException {
         return warehouseService.updateIdentifier(id, newIdentifier);
     }
@@ -57,13 +67,16 @@ public class WarehouseController {
     }
 
     @GetMapping("/{id}")
-    public WarehouseDtoWithId getById(@PathVariable Long id) throws ResourceNotFoundException {
+    public WarehouseDtoWithId getById(
+            @Min(value = 1, message = "id must be more or equals 1")
+            @PathVariable Long id) throws ResourceNotFoundException {
         return warehouseService.readById(id);
     }
 
     @PutMapping("/{warehouseId}/item")
     public WarehouseDtoWithId putItemToWarehouse(
             @Valid @RequestBody WarehouseItemDtoWithoutId warehouseItemDtoWithoutId,
+            @Min(value = 1, message = "id must be more or equals 1")
             @PathVariable Long warehouseId,
             @RequestParam String operation)
             throws ResourceNotFoundException, ConflictWithCurrentWarehouseStateException, UnprocessableEntityException {
@@ -73,7 +86,9 @@ public class WarehouseController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteById(@PathVariable Long id) {
+    public void deleteById(
+            @Min(value = 1, message = "id must be more or equals 1")
+            @PathVariable Long id) {
         warehouseService.deleteById(id);
     }
 

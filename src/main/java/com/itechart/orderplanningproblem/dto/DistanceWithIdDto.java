@@ -5,15 +5,25 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.Valid;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class DistanceWithIdDto {
 
+    @Min(value = 1, message = "Id can't be less than 1!")
     private Long id;
+    @NotNull(message = "Distance is mandatory")
+    @DecimalMin(value = "0.0", message = "Distance can't be less than 0!")
     private Double distanceValue;
+    @Valid
     private WarehouseDtoWithId warehouse;
+    @Valid
     private CustomerDtoWithId customer;
 
 }

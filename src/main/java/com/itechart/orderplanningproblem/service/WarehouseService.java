@@ -161,11 +161,12 @@ public class WarehouseService {
 
     @Transactional
     public void deleteByIdentifier(final String identifier) {
-        if (warehouseRepository.readByIdentifier(identifier).isEmpty()) {
+        Optional<Warehouse> warehouse = warehouseRepository.readByIdentifier(identifier);
+        if (warehouse.isEmpty()) {
             return;
         }
-        distanceRepository.deleteByWarehouseIdentifier(identifier);
-        warehouseRepository.deleteByIdentifier(identifier);
+        distanceRepository.deleteByWarehouseId(warehouse.get().getId());
+        warehouseRepository.deleteById(warehouse.get().getId());
     }
 
     private void mapWarehouseItems(Warehouse warehouse) {

@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,25 +24,33 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/customers")
+@Validated
 public class CustomerController {
 
     private final CustomerService customerService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CustomerDtoWithId createItem(@Valid @RequestBody CustomerDtoWithoutId customerDto)
+    public CustomerDtoWithId createCustomer(@Valid @RequestBody CustomerDtoWithoutId customerDto)
             throws UnprocessableEntityException {
         return customerService.create(customerDto);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public CustomerDtoWithId createItem(@PathVariable Long id,
-                                        @RequestParam String newName)
+    public CustomerDtoWithId updateCustomerName(
+            @Min(value = 1, message = "id must be more or equals 1")
+            @PathVariable Long id,
+            @Pattern(regexp = "^[A-Z][0-9A-Za-z\\s-]*$", message = "Name should match pattern ^[A-Z][0-9A-Za-z\\s-]*$")
+            @Size(min = 3, max = 50, message = "Name should be longer than 3 letters and shorter than 50.")
+            @RequestParam String newName)
             throws ResourceNotFoundException, UnprocessableEntityException {
         return customerService.updateName(id, newName);
     }
@@ -55,13 +64,15 @@ public class CustomerController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public CustomerDtoWithId getById(@PathVariable Long id) throws ResourceNotFoundException {
+    public CustomerDtoWithId getById(@PathVariable @Min(value = 1,
+            message = "id must be more or equals 1") Long id) throws ResourceNotFoundException {
         return customerService.readById(id);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteById(@PathVariable Long id) {
+    public void deleteById(@PathVariable @Min(value = 1,
+            message = "id must be more or equals 1") Long id) {
         customerService.deleteById(id);
     }
 

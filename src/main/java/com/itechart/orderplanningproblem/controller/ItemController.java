@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,10 +24,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/items")
+@Validated
 public class ItemController {
 
     private final ItemService itemService;
@@ -39,8 +44,12 @@ public class ItemController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ItemDtoWithId createItem(@PathVariable Long id,
-                                    @RequestParam String newName)
+    public ItemDtoWithId updateItemName(
+            @Min(value = 1, message = "id must be more or equals 1")
+            @PathVariable Long id,
+            @Pattern(regexp = "^[A-Z][0-9A-Za-z\\s-]*$", message = "Name should match pattern ^[A-Z][0-9A-Za-z\\s-]*$")
+            @Size(min = 3, max = 50, message = "Name should be longer than 3 letters and shorter than 50.")
+            @RequestParam String newName)
             throws ResourceNotFoundException, UnprocessableEntityException {
         return itemService.updateName(id, newName);
     }
@@ -54,13 +63,17 @@ public class ItemController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ItemDtoWithId getById(@PathVariable Long id) throws ResourceNotFoundException {
+    public ItemDtoWithId getById(
+            @Min(value = 1, message = "id must be more or equals 1")
+            @PathVariable Long id) throws ResourceNotFoundException {
         return itemService.readById(id);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteById(@PathVariable Long id) {
+    public void deleteById(
+            @Min(value = 1, message = "id must be more or equals 1")
+            @PathVariable Long id) {
         itemService.deleteById(id);
     }
 
