@@ -75,6 +75,7 @@ public class CustomerService {
         if (customerRepository.findById(id).isEmpty()) {
             return;
         }
+        distanceRepository.deleteByCustomerId(id);
         customerRepository.deleteById(id);
     }
 }

@@ -18,6 +18,9 @@ public interface DistanceRepository extends JpaRepository<Distance, Long> {
     @Query("delete from Distance d where d.warehouse.id = :warehouseId")
     void deleteByWarehouseId(@Param("warehouseId") Long warehouseId);
     @Modifying
+    @Query("delete from Distance d where d.customer.id = :customerId")
+    void deleteByCustomerId(@Param("customerId") Long customerId);
+    @Modifying
     @Query("delete from Distance d where d.warehouse.identifier = :warehouseIdentifier")
     void deleteByWarehouseIdentifier(@Param("warehouseIdentifier") String identifier);
 
