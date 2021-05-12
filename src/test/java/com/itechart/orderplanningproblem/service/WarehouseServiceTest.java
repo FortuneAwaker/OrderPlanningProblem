@@ -1,17 +1,13 @@
 package com.itechart.orderplanningproblem.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itechart.orderplanningproblem.dto.ItemDtoWithId;
-import com.itechart.orderplanningproblem.dto.ItemDtoWithoutId;
 import com.itechart.orderplanningproblem.dto.WarehouseDtoWithId;
 import com.itechart.orderplanningproblem.dto.WarehouseDtoWithoutId;
-import com.itechart.orderplanningproblem.entity.Item;
 import com.itechart.orderplanningproblem.entity.Warehouse;
 import com.itechart.orderplanningproblem.exception.ResourceNotFoundException;
 import com.itechart.orderplanningproblem.exception.UnprocessableEntityException;
 import com.itechart.orderplanningproblem.repository.CustomerRepository;
 import com.itechart.orderplanningproblem.repository.DistanceRepository;
-import com.itechart.orderplanningproblem.repository.ItemRepository;
 import com.itechart.orderplanningproblem.repository.WarehouseRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
