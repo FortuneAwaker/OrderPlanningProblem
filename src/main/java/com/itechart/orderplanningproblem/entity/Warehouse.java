@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -35,7 +34,6 @@ public class Warehouse {
     @Column(nullable = false)
     private Double longitude;
     @OneToMany(mappedBy = "warehouse", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval = true)
-    @ToString.Exclude
     private List<WarehouseItem> items = new ArrayList<>();
 
 }
