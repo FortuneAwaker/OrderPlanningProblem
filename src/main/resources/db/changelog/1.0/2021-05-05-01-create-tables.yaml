@@ -1,5 +1,30 @@
 databaseChangeLog:
   - changeSet:
+      id: create-table-location
+      author: alexander_popovich
+      changes:
+        - createTable:
+            tableName: location
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: latitude
+                  type: double
+                  constraints:
+                    nullable: false
+              - column:
+                  name: longitude
+                  type: double
+                  constraints:
+                    nullable: false
+
+  - changeSet:
       id: create-table-item
       author: alexander_popovich
       changes:
@@ -41,15 +66,20 @@ databaseChangeLog:
                     nullable: false
                     unique: true
               - column:
-                  name: latitude
-                  type: double
-                  constraints:
-                    nullable: false
-              - column:
-                  name: longitude
-                  type: double
-                  constraints:
-                    nullable: false
+                  name: location_id
+                  type: BIGINT
+  - changeSet:
+      id: create-location-fk-of-warehouse
+      author: alexander_popovich
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: location_id
+            baseTableName: warehouse
+            constraintName: location_fk_warehouse
+            referencedColumnNames: id
+            referencedTableName: location
+            onDelete: RESTRICT
+            onUpdate: CASCADE
 
   - changeSet:
       id: create-table-warehouse_item

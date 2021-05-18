@@ -3,12 +3,14 @@ package com.itechart.orderplanningproblem.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itechart.orderplanningproblem.dto.CustomerDto;
 import com.itechart.orderplanningproblem.dto.ItemDto;
+import com.itechart.orderplanningproblem.dto.LocationDto;
 import com.itechart.orderplanningproblem.dto.OrderDto;
 import com.itechart.orderplanningproblem.dto.CreateOrderDto;
 import com.itechart.orderplanningproblem.dto.WarehouseDto;
 import com.itechart.orderplanningproblem.entity.Customer;
 import com.itechart.orderplanningproblem.entity.Distance;
 import com.itechart.orderplanningproblem.entity.Item;
+import com.itechart.orderplanningproblem.entity.Location;
 import com.itechart.orderplanningproblem.entity.Order;
 import com.itechart.orderplanningproblem.entity.Warehouse;
 import com.itechart.orderplanningproblem.entity.WarehouseItem;
@@ -70,6 +72,10 @@ class OrderServiceTest {
         Double amount = 30.0;
         String itemName = "Chocolate";
         Double distanceValue = 4432.186613415447;
+        Double customerLatitude = 55.0055;
+        Double customerLongitude = 24.454732;
+        Double warehouseLatitude = 22.12345;
+        Double warehouseLongitude = 54.6688;
         Item item = Item.builder()
                 .id(1L)
                 .name(itemName)
@@ -78,30 +84,42 @@ class OrderServiceTest {
                 .id(1L)
                 .name(itemName)
                 .build();
+        Location customerLocation = Location.builder()
+                .latitude(customerLatitude)
+                .longitude(customerLongitude)
+                .build();
+        LocationDto customerLocationDto = LocationDto.builder()
+                .latitude(customerLatitude)
+                .longitude(customerLongitude)
+                .build();
         Customer customer = Customer.builder()
                 .id(1L)
                 .name("Customer")
-                .latitude(55.0055)
-                .longitude(24.454732)
+                .location(customerLocation)
                 .build();
         CustomerDto customerDto = CustomerDto.builder()
                 .id(1L)
                 .name("Customer")
-                .latitude(55.0055)
-                .longitude(24.454732)
+                .location(customerLocationDto)
+                .build();
+        Location warehouseLocation = Location.builder()
+                .latitude(warehouseLatitude)
+                .longitude(warehouseLongitude)
+                .build();
+        LocationDto warehouseLocationDto = LocationDto.builder()
+                .latitude(warehouseLatitude)
+                .longitude(warehouseLongitude)
                 .build();
         Warehouse warehouse = Warehouse.builder()
                 .id(1L)
                 .name("Warehouse")
-                .latitude(22.12345)
-                .longitude(54.6688)
+                .location(warehouseLocation)
                 .items(new ArrayList<>())
                 .build();
         WarehouseDto warehouseDto = WarehouseDto.builder()
                 .id(1L)
                 .name("Warehouse")
-                .latitude(22.12345)
-                .longitude(54.6688)
+                .location(warehouseLocationDto)
                 .items(new ArrayList<>())
                 .build();
         Order order = Order.builder()
@@ -138,6 +156,10 @@ class OrderServiceTest {
         Double amount = 30.0;
         String itemName = "Chocolate";
         Double distanceValue = 4432.186613415447;
+        Double customerLatitude = 55.0055;
+        Double customerLongitude = 24.454732;
+        Double warehouseLatitude = 22.12345;
+        Double warehouseLongitude = 54.6688;
         Item item = Item.builder()
                 .id(1L)
                 .name(itemName)
@@ -146,30 +168,42 @@ class OrderServiceTest {
                 .id(1L)
                 .name(itemName)
                 .build();
+        Location customerLocation = Location.builder()
+                .latitude(customerLatitude)
+                .longitude(customerLongitude)
+                .build();
+        LocationDto customerLocationDto = LocationDto.builder()
+                .latitude(customerLatitude)
+                .longitude(customerLongitude)
+                .build();
         Customer customer = Customer.builder()
                 .id(1L)
                 .name("Customer")
-                .latitude(55.0055)
-                .longitude(24.454732)
+                .location(customerLocation)
                 .build();
         CustomerDto customerDto = CustomerDto.builder()
                 .id(1L)
                 .name("Customer")
-                .latitude(55.0055)
-                .longitude(24.454732)
+                .location(customerLocationDto)
+                .build();
+        Location warehouseLocation = Location.builder()
+                .latitude(warehouseLatitude)
+                .longitude(warehouseLongitude)
+                .build();
+        LocationDto warehouseLocationDto = LocationDto.builder()
+                .latitude(warehouseLatitude)
+                .longitude(warehouseLongitude)
                 .build();
         Warehouse warehouse = Warehouse.builder()
                 .id(1L)
                 .name("Warehouse")
-                .latitude(22.12345)
-                .longitude(54.6688)
+                .location(warehouseLocation)
                 .items(new ArrayList<>())
                 .build();
         WarehouseDto warehouseDto = WarehouseDto.builder()
                 .id(1L)
                 .name("Warehouse")
-                .latitude(22.12345)
-                .longitude(54.6688)
+                .location(warehouseLocationDto)
                 .items(new ArrayList<>())
                 .build();
         Order order = Order.builder()
@@ -209,6 +243,10 @@ class OrderServiceTest {
         Double amount = 30.0;
         String itemName = "Chocolate";
         Double distanceValue = 4432.186613415447;
+        Double customerLatitude = 55.0055;
+        Double customerLongitude = 24.454732;
+        Double warehouseLatitude = 22.12345;
+        Double warehouseLongitude = 54.6688;
         Item item = Item.builder()
                 .id(1L)
                 .name(itemName)
@@ -217,30 +255,42 @@ class OrderServiceTest {
                 .id(1L)
                 .name(itemName)
                 .build();
+        Location customerLocation = Location.builder()
+                .latitude(customerLatitude)
+                .longitude(customerLongitude)
+                .build();
+        LocationDto customerLocationDto = LocationDto.builder()
+                .latitude(customerLatitude)
+                .longitude(customerLongitude)
+                .build();
         Customer customer = Customer.builder()
-                .id(customerId)
+                .id(1L)
                 .name("Customer")
-                .latitude(55.0055)
-                .longitude(24.454732)
+                .location(customerLocation)
                 .build();
         CustomerDto customerDto = CustomerDto.builder()
-                .id(customerId)
+                .id(1L)
                 .name("Customer")
-                .latitude(55.0055)
-                .longitude(24.454732)
+                .location(customerLocationDto)
+                .build();
+        Location warehouseLocation = Location.builder()
+                .latitude(warehouseLatitude)
+                .longitude(warehouseLongitude)
+                .build();
+        LocationDto warehouseLocationDto = LocationDto.builder()
+                .latitude(warehouseLatitude)
+                .longitude(warehouseLongitude)
                 .build();
         Warehouse warehouse = Warehouse.builder()
                 .id(1L)
                 .name("Warehouse")
-                .latitude(22.12345)
-                .longitude(54.6688)
+                .location(warehouseLocation)
                 .items(new ArrayList<>())
                 .build();
         Warehouse emptyWarehouse = Warehouse.builder()
                 .id(1L)
                 .name("Warehouse")
-                .latitude(22.12345)
-                .longitude(54.6688)
+                .location(warehouseLocation)
                 .items(new ArrayList<>())
                 .build();
         WarehouseItem warehouseItem = WarehouseItem.builder()
@@ -255,8 +305,7 @@ class OrderServiceTest {
         WarehouseDto warehouseDto = WarehouseDto.builder()
                 .id(1L)
                 .name("Warehouse")
-                .latitude(22.12345)
-                .longitude(54.6688)
+                .location(warehouseLocationDto)
                 .items(new ArrayList<>())
                 .build();
         Distance distance = Distance.builder()

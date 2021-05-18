@@ -1,7 +1,9 @@
 package com.itechart.orderplanningproblem.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itechart.orderplanningproblem.dto.LocationDto;
 import com.itechart.orderplanningproblem.dto.WarehouseDto;
+import com.itechart.orderplanningproblem.entity.Location;
 import com.itechart.orderplanningproblem.entity.Warehouse;
 import com.itechart.orderplanningproblem.error.exception.ResourceNotFoundException;
 import com.itechart.orderplanningproblem.error.exception.UnprocessableEntityException;
@@ -41,12 +43,12 @@ class WarehouseServiceTest {
     void WarehouseIdentifierToEdit_EditWarehouseWithIdThatDoesNotExist_ThrowResourceNotFoundException() {
         // given
         Long warehouseId = 12503L;
-        String warehouseNewIdentifier = "New identifier";
+        String warehouseNewName = "New name";
         // when
         Mockito.when(warehouseRepository.findById(warehouseId)).thenReturn(Optional.empty());
         // then
         Assertions.assertThrows(ResourceNotFoundException.class, () -> warehouseService
-                .updateName(warehouseId, warehouseNewIdentifier));
+                .updateName(warehouseId, warehouseNewName));
 
     }
 
@@ -55,18 +57,22 @@ class WarehouseServiceTest {
         // given
         Long warehouseId = 1L;
         String warehouseNewName = "New name";
+        Double latitude = 22.12345;
+        Double longitude = 54.6688;
+        Location warehouseLocation = Location.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
         Warehouse warehouseInDbById = Warehouse.builder()
                 .id(warehouseId)
                 .name("Old warehouse name")
-                .latitude(22.12345)
-                .longitude(54.6688)
+                .location(warehouseLocation)
                 .items(new ArrayList<>())
                 .build();
         Warehouse warehouseInDbByIdentifier = Warehouse.builder()
                 .id(2L)
                 .name(warehouseNewName)
-                .latitude(22.12345)
-                .longitude(54.6688)
+                .location(warehouseLocation)
                 .items(new ArrayList<>())
                 .build();
         // when
@@ -84,37 +90,44 @@ class WarehouseServiceTest {
             throws ResourceNotFoundException, UnprocessableEntityException {
         // given
         Long warehouseId = 1L;
-        String warehouseNewIdentifier = "New identifier";
+        String warehouseNewName = "New name";
+        Double latitude = 22.12345;
+        Double longitude = 54.6688;
+        Location warehouseLocation = Location.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
+        LocationDto warehouseLocationDto = LocationDto.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
         Warehouse warehouseInDbById = Warehouse.builder()
                 .id(warehouseId)
-                .name("Old warehouse identifier")
-                .latitude(22.12345)
-                .longitude(54.6688)
+                .name("Old warehouse name")
+                .location(warehouseLocation)
                 .items(new ArrayList<>())
                 .build();
         Warehouse warehouseInDbAfterIdentifierWasChanged = Warehouse.builder()
                 .id(warehouseId)
-                .name(warehouseNewIdentifier)
-                .latitude(22.12345)
-                .longitude(54.6688)
+                .name(warehouseNewName)
+                .location(warehouseLocation)
                 .items(new ArrayList<>())
                 .build();
         WarehouseDto warehouseDto = WarehouseDto.builder()
                 .id(warehouseId)
-                .name(warehouseNewIdentifier)
-                .latitude(22.12345)
-                .longitude(54.6688)
+                .name(warehouseNewName)
+                .location(warehouseLocationDto)
                 .items(new ArrayList<>())
                 .build();
         // when
         Mockito.when(warehouseRepository.findById(warehouseId)).thenReturn(Optional.of(warehouseInDbById));
-        Mockito.when(warehouseRepository.readByName(warehouseNewIdentifier)).thenReturn(Optional.empty());
+        Mockito.when(warehouseRepository.readByName(warehouseNewName)).thenReturn(Optional.empty());
         Mockito.when(warehouseRepository.save(warehouseInDbById)).thenReturn(warehouseInDbAfterIdentifierWasChanged);
         Mockito.when(objectMapper.convertValue(warehouseInDbAfterIdentifierWasChanged, WarehouseDto.class))
                 .thenReturn(warehouseDto);
         // then
         Assertions.assertEquals(warehouseDto, warehouseService
-                .updateName(warehouseId, warehouseNewIdentifier));
+                .updateName(warehouseId, warehouseNewName));
 
     }
 
@@ -134,18 +147,26 @@ class WarehouseServiceTest {
         // given
         Long warehouseId = 1L;
         String warehouseIdentifier = "Warehouse";
+        Double latitude = 22.12345;
+        Double longitude = 54.6688;
+        Location warehouseLocation = Location.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
+        LocationDto warehouseLocationDto = LocationDto.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
         Warehouse warehouse = Warehouse.builder()
                 .id(warehouseId)
                 .name(warehouseIdentifier)
-                .latitude(22.12345)
-                .longitude(54.6688)
+                .location(warehouseLocation)
                 .items(new ArrayList<>())
                 .build();
         WarehouseDto warehouseDto = WarehouseDto.builder()
                 .id(warehouseId)
                 .name(warehouseIdentifier)
-                .latitude(22.12345)
-                .longitude(54.6688)
+                .location(warehouseLocationDto)
                 .items(new ArrayList<>())
                 .build();
         // when
@@ -164,18 +185,26 @@ class WarehouseServiceTest {
         PageRequest pageRequest = PageRequest.of(0, 10);
         Long warehouseId = 1L;
         String warehouseIdentifier = "Warehouse";
+        Double latitude = 22.12345;
+        Double longitude = 54.6688;
+        Location warehouseLocation = Location.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
+        LocationDto warehouseLocationDto = LocationDto.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
         Warehouse warehouse = Warehouse.builder()
                 .id(warehouseId)
                 .name(warehouseIdentifier)
-                .latitude(22.12345)
-                .longitude(54.6688)
+                .location(warehouseLocation)
                 .items(new ArrayList<>())
                 .build();
         WarehouseDto warehouseDto = WarehouseDto.builder()
                 .id(warehouseId)
                 .name(warehouseIdentifier)
-                .latitude(22.12345)
-                .longitude(54.6688)
+                .location(warehouseLocationDto)
                 .items(new ArrayList<>())
                 .build();
         List<Warehouse> warehouseList = Collections.singletonList(warehouse);
@@ -196,30 +225,36 @@ class WarehouseServiceTest {
         // given
         Long warehouseId = 1L;
         String warehouseIdentifier = "Warehouse";
+        Double latitude = 22.12345;
+        Double longitude = 54.6688;
+        Location warehouseLocation = Location.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
+        LocationDto warehouseLocationDto = LocationDto.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
         Warehouse warehouse = Warehouse.builder()
                 .name(warehouseIdentifier)
-                .latitude(22.12345)
-                .longitude(54.6688)
+                .location(warehouseLocation)
                 .items(new ArrayList<>())
                 .build();
         Warehouse createdWarehouse = Warehouse.builder()
                 .id(warehouseId)
                 .name(warehouseIdentifier)
-                .latitude(22.12345)
-                .longitude(54.6688)
+                .location(warehouseLocation)
                 .items(new ArrayList<>())
                 .build();
         WarehouseDto warehouseDtoToBeCreated = WarehouseDto.builder()
                 .name(warehouseIdentifier)
-                .latitude(22.12345)
-                .longitude(54.6688)
+                .location(warehouseLocationDto)
                 .items(new ArrayList<>())
                 .build();
         WarehouseDto createdWarehouseDto = WarehouseDto.builder()
                 .id(warehouseId)
                 .name(warehouseIdentifier)
-                .latitude(22.12345)
-                .longitude(54.6688)
+                .location(warehouseLocationDto)
                 .items(new ArrayList<>())
                 .build();
         // when

@@ -3,9 +3,11 @@ package com.itechart.orderplanningproblem.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itechart.orderplanningproblem.dto.CustomerDto;
 import com.itechart.orderplanningproblem.dto.DistanceDto;
+import com.itechart.orderplanningproblem.dto.LocationDto;
 import com.itechart.orderplanningproblem.dto.WarehouseDto;
 import com.itechart.orderplanningproblem.entity.Customer;
 import com.itechart.orderplanningproblem.entity.Distance;
+import com.itechart.orderplanningproblem.entity.Location;
 import com.itechart.orderplanningproblem.entity.Warehouse;
 import com.itechart.orderplanningproblem.error.exception.ResourceNotFoundException;
 import com.itechart.orderplanningproblem.repository.DistanceRepository;
@@ -64,30 +66,42 @@ class DistanceServiceTest {
         // given
         Long distanceId = 1L;
         Double distanceValue = 4432.186613415447;
+        Location customerLocation = Location.builder()
+                .latitude(55.0055)
+                .longitude(24.454732)
+                .build();
+        LocationDto customerLocationDto = LocationDto.builder()
+                .latitude(55.0055)
+                .longitude(24.454732)
+                .build();
+        Location warehouseLocation = Location.builder()
+                .latitude(22.12345)
+                .longitude(54.6688)
+                .build();
+        LocationDto warehouseLocationDto = LocationDto.builder()
+                .latitude(22.12345)
+                .longitude(54.6688)
+                .build();
         Customer customer = Customer.builder()
                 .id(1L)
                 .name("Customer")
-                .latitude(55.0055)
-                .longitude(24.454732)
+                .location(customerLocation)
                 .build();
         CustomerDto customerDto = CustomerDto.builder()
                 .id(1L)
                 .name("Customer")
-                .latitude(55.0055)
-                .longitude(24.454732)
+                .location(customerLocationDto)
                 .build();
         Warehouse warehouse = Warehouse.builder()
                 .id(1L)
                 .name("Warehouse")
-                .latitude(22.12345)
-                .longitude(54.6688)
+                .location(warehouseLocation)
                 .items(new ArrayList<>())
                 .build();
         WarehouseDto warehouseDto = WarehouseDto.builder()
                 .id(1L)
                 .name("Warehouse")
-                .latitude(22.12345)
-                .longitude(54.6688)
+                .location(warehouseLocationDto)
                 .items(new ArrayList<>())
                 .build();
         Distance distance = Distance.builder()

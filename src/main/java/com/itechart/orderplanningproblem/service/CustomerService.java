@@ -46,8 +46,8 @@ public class CustomerService {
         List<Distance> distances = new ArrayList<>();
         allWarehouses.forEach((warehouse -> {
             double distanceValue = distanceService.getDistanceByLatitudeAndLongitude(
-                    customer.getLatitude(), customer.getLongitude(),
-                    warehouse.getLatitude(), warehouse.getLongitude());
+                    customer.getLocation().getLatitude(), customer.getLocation().getLongitude(),
+                    warehouse.getLocation().getLatitude(), warehouse.getLocation().getLongitude());
             Distance distance = new Distance(null, distanceValue, customer, warehouse);
             distances.add(distance);
         }));

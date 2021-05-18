@@ -2,7 +2,9 @@ package com.itechart.orderplanningproblem.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itechart.orderplanningproblem.dto.CustomerDto;
+import com.itechart.orderplanningproblem.dto.LocationDto;
 import com.itechart.orderplanningproblem.entity.Customer;
+import com.itechart.orderplanningproblem.entity.Location;
 import com.itechart.orderplanningproblem.error.exception.ResourceNotFoundException;
 import com.itechart.orderplanningproblem.error.exception.UnprocessableEntityException;
 import com.itechart.orderplanningproblem.repository.CustomerRepository;
@@ -58,17 +60,19 @@ class CustomerServiceTest {
         String customerNewName = "New name";
         Double latitude = 55.0055;
         Double longitude = 24.454732;
+        Location customerLocation = Location.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
         Customer customerInDbById = Customer.builder()
                 .id(customerId)
                 .name("Old item name")
-                .latitude(latitude)
-                .longitude(longitude)
+                .location(customerLocation)
                 .build();
         Customer customerInDbByName = Customer.builder()
                 .id(2L)
                 .name(customerNewName)
-                .latitude(latitude)
-                .longitude(longitude)
+                .location(customerLocation)
                 .build();
         // when
         Mockito.when(customerRepository.findById(customerId)).thenReturn(Optional.of(customerInDbById));
@@ -87,23 +91,28 @@ class CustomerServiceTest {
         String customerNewName = "New name";
         Double latitude = 55.0055;
         Double longitude = 24.454732;
+        Location customerLocation = Location.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
+        LocationDto customerLocationDto = LocationDto.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
         Customer customerInDbById = Customer.builder()
                 .id(customerId)
                 .name("Old item name")
-                .latitude(latitude)
-                .longitude(longitude)
+                .location(customerLocation)
                 .build();
         Customer customerInDbAfterNameWasChanged = Customer.builder()
                 .id(customerId)
                 .name(customerNewName)
-                .latitude(latitude)
-                .longitude(longitude)
+                .location(customerLocation)
                 .build();
         CustomerDto customerDto = CustomerDto.builder()
                 .id(customerId)
                 .name(customerNewName)
-                .latitude(latitude)
-                .longitude(longitude)
+                .location(customerLocationDto)
                 .build();
         // when
         Mockito.when(customerRepository.findById(customerId)).thenReturn(Optional.of(customerInDbById));
@@ -134,17 +143,23 @@ class CustomerServiceTest {
         String customerName = "Customer";
         Double latitude = 55.0055;
         Double longitude = 24.454732;
+        Location customerLocation = Location.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
+        LocationDto customerLocationDto = LocationDto.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
         Customer customer = Customer.builder()
                 .id(customerId)
                 .name(customerName)
-                .latitude(latitude)
-                .longitude(longitude)
+                .location(customerLocation)
                 .build();
         CustomerDto customerDto = CustomerDto.builder()
                 .id(customerId)
                 .name(customerName)
-                .latitude(latitude)
-                .longitude(longitude)
+                .location(customerLocationDto)
                 .build();
         // when
         Mockito.when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
@@ -164,17 +179,23 @@ class CustomerServiceTest {
         String customerName = "Customer";
         Double latitude = 55.0055;
         Double longitude = 24.454732;
+        Location customerLocation = Location.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
+        LocationDto customerLocationDto = LocationDto.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
         Customer customer = Customer.builder()
                 .id(customerId)
                 .name(customerName)
-                .latitude(latitude)
-                .longitude(longitude)
+                .location(customerLocation)
                 .build();
         CustomerDto customerDto = CustomerDto.builder()
                 .id(customerId)
                 .name(customerName)
-                .latitude(latitude)
-                .longitude(longitude)
+                .location(customerLocationDto)
                 .build();
         List<Customer> customerList = Collections.singletonList(customer);
         List<CustomerDto> customerDtoList = Collections.singletonList(customerDto);
@@ -196,28 +217,32 @@ class CustomerServiceTest {
         String customerName = "Customer";
         Double latitude = 55.0055;
         Double longitude = 24.454732;
+        Location customerLocation = Location.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
+        LocationDto customerLocationDto = LocationDto.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
         Customer customer = Customer.builder()
                 .id(customerId)
                 .name(customerName)
-                .latitude(latitude)
-                .longitude(longitude)
+                .location(customerLocation)
                 .build();
         Customer createdCustomer = Customer.builder()
                 .id(customerId)
                 .name(customerName)
-                .latitude(latitude)
-                .longitude(longitude)
+                .location(customerLocation)
                 .build();
         CustomerDto customerDtoToBeCreated = CustomerDto.builder()
                 .name(customerName)
-                .latitude(latitude)
-                .longitude(longitude)
+                .location(customerLocationDto)
                 .build();
         CustomerDto createdCustomerDto = CustomerDto.builder()
                 .id(customerId)
                 .name(customerName)
-                .latitude(latitude)
-                .longitude(longitude)
+                .location(customerLocationDto)
                 .build();
         // when
         Mockito.when(customerRepository.readByName(customerName)).thenReturn(Optional.empty());
