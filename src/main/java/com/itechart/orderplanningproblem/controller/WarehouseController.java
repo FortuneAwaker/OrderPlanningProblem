@@ -48,15 +48,15 @@ public class WarehouseController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public WarehouseDto updateWarehouseIdentifier(
+    public WarehouseDto updateWarehouseName(
             @Min(value = 1, message = "id must be more or equals 1")
             @PathVariable Long id,
             @Pattern(regexp = "^[A-Z][0-9A-Za-z\\s-]*$",
                     message = "Identifier should match pattern ^[A-Z][0-9A-Za-z\\s-]*$")
             @Size(min = 3, max = 50, message = "Identifier should be longer than 3 letters and shorter than 50.")
-            @RequestParam String newIdentifier)
+            @RequestParam String newName)
             throws ResourceNotFoundException, UnprocessableEntityException {
-        return warehouseService.updateIdentifier(id, newIdentifier);
+        return warehouseService.updateName(id, newName);
     }
 
     @GetMapping
@@ -90,12 +90,6 @@ public class WarehouseController {
             @Min(value = 1, message = "id must be more or equals 1")
             @PathVariable Long id) {
         warehouseService.deleteById(id);
-    }
-
-    @DeleteMapping
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteByIdentifier(@RequestParam String identifier) {
-        warehouseService.deleteByIdentifier(identifier);
     }
 
 }

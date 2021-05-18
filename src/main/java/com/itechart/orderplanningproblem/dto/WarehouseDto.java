@@ -25,10 +25,10 @@ public class WarehouseDto {
 
     @Min(value = 1, message = "Id can't be less than 1!")
     private Long id;
-    @NotNull(message = "Warehouse identifier is mandatory!")
+    @NotNull(message = "Warehouse name is mandatory!")
     @Pattern(regexp = "^[A-Z][0-9A-Za-z\\s-]*$", message = "Identifier should match pattern ^[A-Z][0-9A-Za-z\\s-]*$")
     @Size(min = 3, max = 50, message = "Identifier should be longer than 3 letters and shorter than 50.")
-    private String identifier;
+    private String name;
     @NotNull(message = "Latitude is mandatory!")
     @DecimalMin(value = "-90.0", message = "Latitude can't be less than -90.0!")
     @DecimalMax(value = "90.0", message = "Latitude can't be more than 90.0!")

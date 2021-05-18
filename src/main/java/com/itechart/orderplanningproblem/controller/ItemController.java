@@ -77,10 +77,4 @@ public class ItemController {
         itemService.deleteById(id);
     }
 
-    @DeleteMapping
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteByName(@RequestParam String name) {
-        itemService.deleteByName(name);
-    }
-
 }

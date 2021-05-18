@@ -41,7 +41,7 @@ public class WarehouseService {
 
     @Transactional
     public WarehouseDto create(final WarehouseDto warehouseDto) throws UnprocessableEntityException {
-        checkInDbByIdentifier(warehouseDto.getIdentifier());
+        checkInDbByIdentifier(warehouseDto.getName());
         Warehouse warehouseFromDto = objectMapper.convertValue(warehouseDto, Warehouse.class);
         mapWarehouseItems(warehouseFromDto);
         Warehouse createdWarehouse = warehouseRepository.save(warehouseFromDto);
@@ -63,11 +63,11 @@ public class WarehouseService {
     }
 
     @Transactional
-    public WarehouseDto updateIdentifier(final Long id, final String newIdentifier)
+    public WarehouseDto updateName(final Long id, final String newName)
             throws ResourceNotFoundException, UnprocessableEntityException {
         Warehouse warehouse = findWarehouseById(id);
-        checkInDbByIdentifier(newIdentifier);
-        warehouse.setIdentifier(newIdentifier);
+        checkInDbByIdentifier(newName);
+        warehouse.setName(newName);
         Warehouse savedWarehouse = warehouseRepository.save(warehouse);
         return objectMapper.convertValue(savedWarehouse, WarehouseDto.class);
     }
@@ -158,16 +158,6 @@ public class WarehouseService {
         warehouseRepository.deleteById(id);
     }
 
-    @Transactional
-    public void deleteByIdentifier(final String identifier) {
-        Optional<Warehouse> warehouse = warehouseRepository.readByIdentifier(identifier);
-        if (warehouse.isEmpty()) {
-            return;
-        }
-        distanceRepository.deleteByWarehouseId(warehouse.get().getId());
-        warehouseRepository.deleteById(warehouse.get().getId());
-    }
-
     private void mapWarehouseItems(Warehouse warehouse) {
         for (WarehouseItem item : warehouse.getItems()) {
             item.setWarehouse(warehouse);
@@ -192,8 +182,8 @@ public class WarehouseService {
         return fromDbById.get();
     }
 
-    private void checkInDbByIdentifier(final String identifier) throws UnprocessableEntityException {
-        Optional<Warehouse> fromDbByIdentifier = warehouseRepository.readByIdentifier(identifier);
+    private void checkInDbByIdentifier(final String name) throws UnprocessableEntityException {
+        Optional<Warehouse> fromDbByIdentifier = warehouseRepository.readByName(name);
         if (fromDbByIdentifier.isPresent()) {
             throw new UnprocessableEntityException(WAREHOUSE_IDENTIFIER_SHOULD_BE_UNIQUE_LITERAL);
         }

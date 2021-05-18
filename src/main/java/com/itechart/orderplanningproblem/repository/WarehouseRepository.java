@@ -12,8 +12,7 @@ import java.util.Optional;
 @Repository
 public interface WarehouseRepository extends JpaRepository<Warehouse, Long> {
 
-    @Query("select w from Warehouse w where w.identifier = :identifier")
-    Optional<Warehouse> readByIdentifier(@Param("identifier") final String identifier);
+    Optional<Warehouse> readByName(final String name);
 
     @Query("select w from Warehouse w join Distance d on w.id = d.warehouse.id" +
             " where d.customer.id = :customerId order by d.distanceValue asc")

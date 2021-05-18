@@ -78,14 +78,14 @@ class DistanceServiceTest {
                 .build();
         Warehouse warehouse = Warehouse.builder()
                 .id(1L)
-                .identifier("Warehouse")
+                .name("Warehouse")
                 .latitude(22.12345)
                 .longitude(54.6688)
                 .items(new ArrayList<>())
                 .build();
         WarehouseDto warehouseDto = WarehouseDto.builder()
                 .id(1L)
-                .identifier("Warehouse")
+                .name("Warehouse")
                 .latitude(22.12345)
                 .longitude(54.6688)
                 .items(new ArrayList<>())

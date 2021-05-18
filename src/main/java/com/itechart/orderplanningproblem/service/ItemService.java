@@ -64,14 +64,6 @@ public class ItemService {
         itemRepository.deleteById(id);
     }
 
-    @Transactional
-    public void deleteByName(final String name) {
-        if (itemRepository.readByName(name).isEmpty()) {
-            return;
-        }
-        itemRepository.deleteByName(name);
-    }
-
     private void checkInDbByName(final String itemName) throws UnprocessableEntityException {
         Optional<Item> fromDbByName = itemRepository.readByName(itemName);
         if (fromDbByName.isPresent()) {

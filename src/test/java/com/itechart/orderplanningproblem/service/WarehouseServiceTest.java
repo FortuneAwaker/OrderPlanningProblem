@@ -46,7 +46,7 @@ class WarehouseServiceTest {
         Mockito.when(warehouseRepository.findById(warehouseId)).thenReturn(Optional.empty());
         // then
         Assertions.assertThrows(ResourceNotFoundException.class, () -> warehouseService
-                .updateIdentifier(warehouseId, warehouseNewIdentifier));
+                .updateName(warehouseId, warehouseNewIdentifier));
 
     }
 
@@ -54,28 +54,28 @@ class WarehouseServiceTest {
     void WarehouseIdentifierToEdit_EditWarehouseWithExistentIdentifier_ThrowUnprocessableEntityException() {
         // given
         Long warehouseId = 1L;
-        String warehouseNewIdentifier = "New identifier";
+        String warehouseNewName = "New name";
         Warehouse warehouseInDbById = Warehouse.builder()
                 .id(warehouseId)
-                .identifier("Old warehouse identifier")
+                .name("Old warehouse name")
                 .latitude(22.12345)
                 .longitude(54.6688)
                 .items(new ArrayList<>())
                 .build();
         Warehouse warehouseInDbByIdentifier = Warehouse.builder()
                 .id(2L)
-                .identifier(warehouseNewIdentifier)
+                .name(warehouseNewName)
                 .latitude(22.12345)
                 .longitude(54.6688)
                 .items(new ArrayList<>())
                 .build();
         // when
         Mockito.when(warehouseRepository.findById(warehouseId)).thenReturn(Optional.of(warehouseInDbById));
-        Mockito.when(warehouseRepository.readByIdentifier(warehouseNewIdentifier))
+        Mockito.when(warehouseRepository.readByName(warehouseNewName))
                 .thenReturn(Optional.of(warehouseInDbByIdentifier));
         // then
         Assertions.assertThrows(UnprocessableEntityException.class,
-                () -> warehouseService.updateIdentifier(warehouseId, warehouseNewIdentifier));
+                () -> warehouseService.updateName(warehouseId, warehouseNewName));
 
     }
 
@@ -87,34 +87,34 @@ class WarehouseServiceTest {
         String warehouseNewIdentifier = "New identifier";
         Warehouse warehouseInDbById = Warehouse.builder()
                 .id(warehouseId)
-                .identifier("Old warehouse identifier")
+                .name("Old warehouse identifier")
                 .latitude(22.12345)
                 .longitude(54.6688)
                 .items(new ArrayList<>())
                 .build();
         Warehouse warehouseInDbAfterIdentifierWasChanged = Warehouse.builder()
                 .id(warehouseId)
-                .identifier(warehouseNewIdentifier)
+                .name(warehouseNewIdentifier)
                 .latitude(22.12345)
                 .longitude(54.6688)
                 .items(new ArrayList<>())
                 .build();
         WarehouseDto warehouseDto = WarehouseDto.builder()
                 .id(warehouseId)
-                .identifier(warehouseNewIdentifier)
+                .name(warehouseNewIdentifier)
                 .latitude(22.12345)
                 .longitude(54.6688)
                 .items(new ArrayList<>())
                 .build();
         // when
         Mockito.when(warehouseRepository.findById(warehouseId)).thenReturn(Optional.of(warehouseInDbById));
-        Mockito.when(warehouseRepository.readByIdentifier(warehouseNewIdentifier)).thenReturn(Optional.empty());
+        Mockito.when(warehouseRepository.readByName(warehouseNewIdentifier)).thenReturn(Optional.empty());
         Mockito.when(warehouseRepository.save(warehouseInDbById)).thenReturn(warehouseInDbAfterIdentifierWasChanged);
         Mockito.when(objectMapper.convertValue(warehouseInDbAfterIdentifierWasChanged, WarehouseDto.class))
                 .thenReturn(warehouseDto);
         // then
         Assertions.assertEquals(warehouseDto, warehouseService
-                .updateIdentifier(warehouseId, warehouseNewIdentifier));
+                .updateName(warehouseId, warehouseNewIdentifier));
 
     }
 
@@ -136,14 +136,14 @@ class WarehouseServiceTest {
         String warehouseIdentifier = "Warehouse";
         Warehouse warehouse = Warehouse.builder()
                 .id(warehouseId)
-                .identifier(warehouseIdentifier)
+                .name(warehouseIdentifier)
                 .latitude(22.12345)
                 .longitude(54.6688)
                 .items(new ArrayList<>())
                 .build();
         WarehouseDto warehouseDto = WarehouseDto.builder()
                 .id(warehouseId)
-                .identifier(warehouseIdentifier)
+                .name(warehouseIdentifier)
                 .latitude(22.12345)
                 .longitude(54.6688)
                 .items(new ArrayList<>())
@@ -166,14 +166,14 @@ class WarehouseServiceTest {
         String warehouseIdentifier = "Warehouse";
         Warehouse warehouse = Warehouse.builder()
                 .id(warehouseId)
-                .identifier(warehouseIdentifier)
+                .name(warehouseIdentifier)
                 .latitude(22.12345)
                 .longitude(54.6688)
                 .items(new ArrayList<>())
                 .build();
         WarehouseDto warehouseDto = WarehouseDto.builder()
                 .id(warehouseId)
-                .identifier(warehouseIdentifier)
+                .name(warehouseIdentifier)
                 .latitude(22.12345)
                 .longitude(54.6688)
                 .items(new ArrayList<>())
@@ -197,33 +197,33 @@ class WarehouseServiceTest {
         Long warehouseId = 1L;
         String warehouseIdentifier = "Warehouse";
         Warehouse warehouse = Warehouse.builder()
-                .identifier(warehouseIdentifier)
+                .name(warehouseIdentifier)
                 .latitude(22.12345)
                 .longitude(54.6688)
                 .items(new ArrayList<>())
                 .build();
         Warehouse createdWarehouse = Warehouse.builder()
                 .id(warehouseId)
-                .identifier(warehouseIdentifier)
+                .name(warehouseIdentifier)
                 .latitude(22.12345)
                 .longitude(54.6688)
                 .items(new ArrayList<>())
                 .build();
         WarehouseDto warehouseDtoToBeCreated = WarehouseDto.builder()
-                .identifier(warehouseIdentifier)
+                .name(warehouseIdentifier)
                 .latitude(22.12345)
                 .longitude(54.6688)
                 .items(new ArrayList<>())
                 .build();
         WarehouseDto createdWarehouseDto = WarehouseDto.builder()
                 .id(warehouseId)
-                .identifier(warehouseIdentifier)
+                .name(warehouseIdentifier)
                 .latitude(22.12345)
                 .longitude(54.6688)
                 .items(new ArrayList<>())
                 .build();
         // when
-        Mockito.when(warehouseRepository.readByIdentifier(warehouseIdentifier)).thenReturn(Optional.empty());
+        Mockito.when(warehouseRepository.readByName(warehouseIdentifier)).thenReturn(Optional.empty());
         Mockito.when(objectMapper.convertValue(warehouseDtoToBeCreated, Warehouse.class))
                 .thenReturn(warehouse);
         Mockito.when(customerRepository.findAll()).thenReturn(Collections.emptyList());
