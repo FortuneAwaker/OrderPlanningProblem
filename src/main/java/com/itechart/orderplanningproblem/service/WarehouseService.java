@@ -1,6 +1,7 @@
 package com.itechart.orderplanningproblem.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itechart.orderplanningproblem.dto.Operation;
 import com.itechart.orderplanningproblem.dto.WarehouseDto;
 import com.itechart.orderplanningproblem.dto.WarehouseItemChangeAmountDto;
 import com.itechart.orderplanningproblem.entity.Customer;
@@ -76,10 +77,10 @@ public class WarehouseService {
     public WarehouseDto changeAmountOfWarehouseItem(
             final WarehouseItemChangeAmountDto warehouseItemChangeAmountDto)
             throws ResourceNotFoundException, UnprocessableEntityException, ConflictWithCurrentWarehouseStateException {
-        if (warehouseItemChangeAmountDto.getOperation().equals("put")) {
+        if (warehouseItemChangeAmountDto.getOperation().equals(Operation.PUT)) {
             return increaseAmountOfWarehouseItem(warehouseItemChangeAmountDto);
         }
-        if (warehouseItemChangeAmountDto.getOperation().equals("remove")) {
+        if (warehouseItemChangeAmountDto.getOperation().equals(Operation.REMOVE)) {
             return decreaseAmountOfWarehouseItem(warehouseItemChangeAmountDto);
         }
         throw new UnprocessableEntityException("Operation must have value <put> or <remove>!");

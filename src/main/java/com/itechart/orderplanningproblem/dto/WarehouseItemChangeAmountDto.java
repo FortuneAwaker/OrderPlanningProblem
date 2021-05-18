@@ -25,6 +25,6 @@ public class WarehouseItemChangeAmountDto {
     private Double amount;
     @Valid
     private ItemDto item;
-    private String operation;
+    private Operation operation;
 
 }

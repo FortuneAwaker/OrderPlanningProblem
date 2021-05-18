@@ -1,5 +1,6 @@
 package com.itechart.orderplanningproblem.controller;
 
+import com.itechart.orderplanningproblem.dto.Operation;
 import com.itechart.orderplanningproblem.dto.WarehouseDto;
 import com.itechart.orderplanningproblem.dto.WarehouseItemChangeAmountDto;
 import com.itechart.orderplanningproblem.dto.WarehouseItemDto;
@@ -78,7 +79,7 @@ public class WarehouseController {
             @Valid @RequestBody WarehouseItemDto warehouseItemDto,
             @Min(value = 1, message = "id must be more or equals 1")
             @PathVariable Long warehouseId,
-            @RequestParam String operation)
+            @RequestParam Operation operation)
             throws ResourceNotFoundException, ConflictWithCurrentWarehouseStateException, UnprocessableEntityException {
         return warehouseService.changeAmountOfWarehouseItem(new WarehouseItemChangeAmountDto(warehouseId,
                 warehouseItemDto.getAmount(), warehouseItemDto.getItem(), operation));
