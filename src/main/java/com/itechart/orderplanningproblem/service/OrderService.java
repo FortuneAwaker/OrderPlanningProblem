@@ -94,7 +94,7 @@ public class OrderService {
                     warehouseRepository.save(warehouse);
                     order.setWarehouse(warehouse);
                     Distance distance = distanceRepository
-                            .findDistanceByCustomerAndWarehouse(order.getCustomer().getId(), warehouse.getId());
+                            .findDistanceByCustomerIdAndWarehouseId(order.getCustomer().getId(), warehouse.getId());
                     order.setDistance(distance.getDistanceValue());
                     processed = true;
                     break;

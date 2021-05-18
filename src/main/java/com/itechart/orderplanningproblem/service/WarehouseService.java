@@ -53,7 +53,7 @@ public class WarehouseService {
     private void mapWarehouseToExistentCustomers(final Warehouse warehouse) {
         List<Customer> allCustomers = customerRepository.findAll();
         List<Distance> distances = new ArrayList<>();
-        for (Customer customer: allCustomers) {
+        for (Customer customer : allCustomers) {
             double distanceValue = distanceService.getDistanceByLatitudeAndLongitude(
                     customer.getLatitude(), customer.getLongitude(),
                     warehouse.getLatitude(), warehouse.getLongitude());
@@ -83,7 +83,7 @@ public class WarehouseService {
         if (warehouseItemChangeAmountDto.getOperation().equals(Operation.REMOVE)) {
             return decreaseAmountOfWarehouseItem(warehouseItemChangeAmountDto);
         }
-        throw new UnprocessableEntityException("Operation must have value <put> or <remove>!");
+        throw new UnprocessableEntityException("Operation must have value <PUT> or <REMOVE>!");
     }
 
 
@@ -109,32 +109,28 @@ public class WarehouseService {
         return objectMapper.convertValue(updatedWarehouse, WarehouseDto.class);
     }
 
-    private WarehouseDto decreaseAmountOfWarehouseItem(
-            final WarehouseItemChangeAmountDto warehouseItemChangeAmountDto)
+    private WarehouseDto decreaseAmountOfWarehouseItem(final WarehouseItemChangeAmountDto warehouseItemChangeAmountDto)
             throws ResourceNotFoundException, ConflictWithCurrentWarehouseStateException {
         Warehouse warehouse = findWarehouseById(warehouseItemChangeAmountDto.getWarehouseId());
-        boolean processed = false;
-        for (WarehouseItem item : warehouse.getItems()
-        ) {
-            if (item.getItem().getName().equals(warehouseItemChangeAmountDto.getItem().getName())) {
-                if (item.getAmount() >= warehouseItemChangeAmountDto.getAmount()) {
-                    item.setAmount(item.getAmount() - warehouseItemChangeAmountDto.getAmount());
-                    if (item.getAmount() == 0) {
-                        warehouse.getItems().remove(item);
-                    }
-                    processed = true;
-                    break;
-                } else {
-                    throw new ConflictWithCurrentWarehouseStateException("It is impossible to remove more items " +
-                            "than are in the warehouse! Current value of item with name " + item.getItem().getName()
-                            + " is " + item.getAmount() + ".");
-                }
+        Item neededItem = itemRepository.readByName(warehouseItemChangeAmountDto.getItem().getName())
+                .orElseThrow(() -> new ResourceNotFoundException("Item with such name doesn't exist"));
+        WarehouseItem item = warehouse.getItems().stream()
+                .filter(it -> it.getItem().getId().equals(neededItem.getId()))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("There is no item with such name in warehouse with id "
+                        + warehouse.getId()));
+
+        if (item.getAmount() >= warehouseItemChangeAmountDto.getAmount()) {
+            item.setAmount(item.getAmount() - warehouseItemChangeAmountDto.getAmount());
+            if (item.getAmount() == 0) {
+                warehouse.getItems().remove(item);
             }
+        } else {
+            throw new ConflictWithCurrentWarehouseStateException("It is impossible to remove more items " +
+                    "than are in the warehouse! Current value of item with name " + item.getItem().getName()
+                    + " is " + item.getAmount() + ".");
         }
-        if (!processed) {
-            throw new ResourceNotFoundException("There is no item with such name in warehouse with id "
-                    + warehouse.getId());
-        }
+
         Warehouse updatedWarehouse = warehouseRepository.save(warehouse);
         return objectMapper.convertValue(updatedWarehouse, WarehouseDto.class);
     }

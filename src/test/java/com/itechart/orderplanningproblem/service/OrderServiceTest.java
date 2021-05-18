@@ -298,7 +298,7 @@ class OrderServiceTest {
         Mockito.when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
         Mockito.when(warehouseRepository.findWarehouseForCustomer(customerId)).thenReturn(warehouseList);
         Mockito.when(warehouseRepository.save(emptyWarehouse)).thenReturn(emptyWarehouse);
-        Mockito.when(distanceRepository.findDistanceByCustomerAndWarehouse(
+        Mockito.when(distanceRepository.findDistanceByCustomerIdAndWarehouseId(
                 order.getCustomer().getId(), warehouse.getId())).thenReturn(distance);
         Mockito.when(orderRepository.save(order)).thenReturn(createdOrder);
         Mockito.when(objectMapper.convertValue(createdOrder, OrderDto.class))

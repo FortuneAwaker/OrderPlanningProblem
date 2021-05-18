@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,8 +33,7 @@ public class CustomerService {
             "Customer name should be unique!";
 
     @Transactional
-    public CustomerDto create(final CustomerDto customerDto)
-            throws UnprocessableEntityException {
+    public CustomerDto create(final CustomerDto customerDto) {
         checkInDbByName(customerDto.getName());
         Customer customerFromDto = objectMapper.convertValue(customerDto, Customer.class);
         Customer createdCustomer = customerRepository.save(customerFromDto);
@@ -46,13 +44,13 @@ public class CustomerService {
     private void mapCustomerToExistentWarehouses(final Customer customer) {
         List<Warehouse> allWarehouses = warehouseRepository.findAll();
         List<Distance> distances = new ArrayList<>();
-        for (Warehouse warehouse: allWarehouses) {
+        allWarehouses.forEach((warehouse -> {
             double distanceValue = distanceService.getDistanceByLatitudeAndLongitude(
                     customer.getLatitude(), customer.getLongitude(),
                     warehouse.getLatitude(), warehouse.getLongitude());
             Distance distance = new Distance(null, distanceValue, customer, warehouse);
             distances.add(distance);
-        }
+        }));
         distanceRepository.saveAll(distances);
     }
 
@@ -69,13 +67,10 @@ public class CustomerService {
 
     @Transactional
     public CustomerDto updateName(final Long id, final String newName)
-            throws ResourceNotFoundException, UnprocessableEntityException {
-        Optional<Customer> fromDbById = customerRepository.findById(id);
-        if (fromDbById.isEmpty()) {
-            throw new ResourceNotFoundException("Customer with id = " + id + " doesn't exist");
-        }
+            throws ResourceNotFoundException {
+        Customer customer = customerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer with id = " + id + " doesn't exist"));
         checkInDbByName(newName);
-        Customer customer = fromDbById.get();
         customer.setName(newName);
         Customer savedCustomer = customerRepository.save(customer);
         return objectMapper.convertValue(savedCustomer, CustomerDto.class);
@@ -83,17 +78,16 @@ public class CustomerService {
 
     @Transactional
     public void deleteById(final Long id) {
-        if (customerRepository.findById(id).isEmpty()) {
-            return;
-        }
-        distanceRepository.deleteByCustomerId(id);
-        customerRepository.deleteById(id);
+        customerRepository.findById(id).ifPresent(customer -> {
+            distanceRepository.deleteByCustomerId(id);
+            customerRepository.deleteById(id);
+        });
+
     }
 
-    private void checkInDbByName(final String customerName) throws UnprocessableEntityException {
-        Optional<Customer> fromDbByName = customerRepository.readByName(customerName);
-        if (fromDbByName.isPresent()) {
+    private void checkInDbByName(final String customerName) {
+        customerRepository.readByName(customerName).ifPresent(customer -> {
             throw new UnprocessableEntityException(CUSTOMER_NAME_SHOULD_BE_UNIQUE_LITERAL);
-        }
+        });
     }
 }
