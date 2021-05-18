@@ -2,7 +2,7 @@ package com.itechart.orderplanningproblem.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itechart.orderplanningproblem.dto.DistanceDto;
-import com.itechart.orderplanningproblem.exception.ResourceNotFoundException;
+import com.itechart.orderplanningproblem.error.exception.ResourceNotFoundException;
 import com.itechart.orderplanningproblem.repository.DistanceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

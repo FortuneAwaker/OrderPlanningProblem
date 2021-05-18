@@ -7,7 +7,7 @@ import com.itechart.orderplanningproblem.dto.WarehouseDto;
 import com.itechart.orderplanningproblem.entity.Customer;
 import com.itechart.orderplanningproblem.entity.Distance;
 import com.itechart.orderplanningproblem.entity.Warehouse;
-import com.itechart.orderplanningproblem.exception.ResourceNotFoundException;
+import com.itechart.orderplanningproblem.error.exception.ResourceNotFoundException;
 import com.itechart.orderplanningproblem.repository.DistanceRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

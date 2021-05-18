@@ -1,7 +1,7 @@
 package com.itechart.orderplanningproblem.controller;
 
 import com.itechart.orderplanningproblem.dto.DistanceDto;
-import com.itechart.orderplanningproblem.exception.ResourceNotFoundException;
+import com.itechart.orderplanningproblem.error.exception.ResourceNotFoundException;
 import com.itechart.orderplanningproblem.service.DistanceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

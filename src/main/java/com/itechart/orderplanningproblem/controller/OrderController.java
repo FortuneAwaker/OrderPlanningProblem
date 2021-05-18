@@ -2,8 +2,8 @@ package com.itechart.orderplanningproblem.controller;
 
 import com.itechart.orderplanningproblem.dto.OrderDto;
 import com.itechart.orderplanningproblem.dto.CreateOrderDto;
-import com.itechart.orderplanningproblem.exception.ResourceNotFoundException;
-import com.itechart.orderplanningproblem.exception.UnprocessableEntityException;
+import com.itechart.orderplanningproblem.error.exception.ResourceNotFoundException;
+import com.itechart.orderplanningproblem.error.exception.UnprocessableEntityException;
 import com.itechart.orderplanningproblem.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

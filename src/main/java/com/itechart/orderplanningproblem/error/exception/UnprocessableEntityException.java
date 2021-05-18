@@ -1,4 +1,4 @@
-package com.itechart.orderplanningproblem.exception;
+package com.itechart.orderplanningproblem.error.exception;
 
 public class UnprocessableEntityException extends Exception {
 
