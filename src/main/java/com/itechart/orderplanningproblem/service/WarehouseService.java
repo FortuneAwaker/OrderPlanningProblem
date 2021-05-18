@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +41,7 @@ public class WarehouseService {
 
     @Transactional
     public WarehouseDto create(final WarehouseDto warehouseDto) throws UnprocessableEntityException {
-        checkInDbByIdentifier(warehouseDto.getName());
+        checkInDbByName(warehouseDto.getName());
         Warehouse warehouseFromDto = objectMapper.convertValue(warehouseDto, Warehouse.class);
         mapWarehouseItems(warehouseFromDto);
         Warehouse createdWarehouse = warehouseRepository.save(warehouseFromDto);
@@ -53,13 +52,13 @@ public class WarehouseService {
     private void mapWarehouseToExistentCustomers(final Warehouse warehouse) {
         List<Customer> allCustomers = customerRepository.findAll();
         List<Distance> distances = new ArrayList<>();
-        for (Customer customer : allCustomers) {
+        allCustomers.forEach(customer -> {
             double distanceValue = distanceService.getDistanceByLatitudeAndLongitude(
                     customer.getLatitude(), customer.getLongitude(),
                     warehouse.getLatitude(), warehouse.getLongitude());
             Distance distance = new Distance(null, distanceValue, customer, warehouse);
             distances.add(distance);
-        }
+        });
         distanceRepository.saveAll(distances);
     }
 
@@ -67,7 +66,7 @@ public class WarehouseService {
     public WarehouseDto updateName(final Long id, final String newName)
             throws ResourceNotFoundException, UnprocessableEntityException {
         Warehouse warehouse = findWarehouseById(id);
-        checkInDbByIdentifier(newName);
+        checkInDbByName(newName);
         warehouse.setName(newName);
         Warehouse savedWarehouse = warehouseRepository.save(warehouse);
         return objectMapper.convertValue(savedWarehouse, WarehouseDto.class);
@@ -90,21 +89,20 @@ public class WarehouseService {
     private WarehouseDto increaseAmountOfWarehouseItem(
             final WarehouseItemChangeAmountDto warehouseItemChangeAmountDto) throws ResourceNotFoundException {
         Warehouse warehouse = findWarehouseById(warehouseItemChangeAmountDto.getWarehouseId());
-        boolean processed = false;
-        for (WarehouseItem item : warehouse.getItems()
-        ) {
-            if (item.getItem().getName().equals(warehouseItemChangeAmountDto.getItem().getName())) {
-                item.setAmount(item.getAmount() + warehouseItemChangeAmountDto.getAmount());
-                processed = true;
-                break;
-            }
-        }
-        if (!processed) {
-            Item itemToSave = objectMapper.convertValue(warehouseItemChangeAmountDto.getItem(), Item.class);
-            findByNameOrCreateItemToPersist(itemToSave);
-            warehouse.getItems().add(new WarehouseItem(null, warehouseItemChangeAmountDto.getAmount(),
-                    itemToSave, warehouse));
-        }
+        warehouse.getItems().stream()
+                .filter(item -> item.getItem().getName().equals(warehouseItemChangeAmountDto.getItem().getName()))
+                .findFirst()
+                .ifPresentOrElse(
+                        whItem -> whItem.setAmount(whItem.getAmount() + warehouseItemChangeAmountDto.getAmount()),
+
+                        () -> {
+                            Item itemToSave = objectMapper.convertValue(warehouseItemChangeAmountDto.getItem(),
+                                    Item.class);
+                            findByNameOrCreateItemToPersist(itemToSave);
+                            warehouse.getItems().add(new WarehouseItem(null,
+                                    warehouseItemChangeAmountDto.getAmount(), itemToSave, warehouse));
+                        });
+
         Warehouse updatedWarehouse = warehouseRepository.save(warehouse);
         return objectMapper.convertValue(updatedWarehouse, WarehouseDto.class);
     }
@@ -148,42 +146,35 @@ public class WarehouseService {
 
     @Transactional
     public void deleteById(final Long id) {
-        if (warehouseRepository.findById(id).isEmpty()) {
-            return;
-        }
-        distanceRepository.deleteByWarehouseId(id);
-        warehouseRepository.deleteById(id);
+        warehouseRepository.findById(id).ifPresent(warehouse -> {
+            distanceRepository.deleteByWarehouseId(id);
+            warehouseRepository.deleteById(id);
+        });
     }
 
     private void mapWarehouseItems(Warehouse warehouse) {
-        for (WarehouseItem item : warehouse.getItems()) {
+        warehouse.getItems().forEach(item -> {
             item.setWarehouse(warehouse);
             findByNameOrCreateItemToPersist(item.getItem());
-        }
+        });
     }
 
     private void findByNameOrCreateItemToPersist(Item item) {
-        Optional<Item> foundInDb = itemRepository.readByName(item.getName());
-        if (foundInDb.isPresent()) {
-            item.setId(foundInDb.get().getId());
-        } else {
-            itemRepository.save(item);
-        }
+        itemRepository.readByName(item.getName()).ifPresentOrElse(
+                foundItem -> item.setId(foundItem.getId()),
+                () -> itemRepository.save(item));
     }
 
     private Warehouse findWarehouseById(final Long warehouseId) throws ResourceNotFoundException {
-        Optional<Warehouse> fromDbById = warehouseRepository.findById(warehouseId);
-        if (fromDbById.isEmpty()) {
-            throw new ResourceNotFoundException("Warehouse with id = " + warehouseId + " doesn't exist");
-        }
-        return fromDbById.get();
+        return warehouseRepository.findById(warehouseId)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Warehouse with id = " + warehouseId + " doesn't exist"));
     }
 
-    private void checkInDbByIdentifier(final String name) throws UnprocessableEntityException {
-        Optional<Warehouse> fromDbByIdentifier = warehouseRepository.readByName(name);
-        if (fromDbByIdentifier.isPresent()) {
+    private void checkInDbByName(final String name) throws UnprocessableEntityException {
+        warehouseRepository.readByName(name).ifPresent(warehouse -> {
             throw new UnprocessableEntityException(WAREHOUSE_IDENTIFIER_SHOULD_BE_UNIQUE_LITERAL);
-        }
+        });
     }
 
 }

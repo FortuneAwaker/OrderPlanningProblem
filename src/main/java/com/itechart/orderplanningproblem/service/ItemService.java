@@ -12,8 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class ItemService {
@@ -35,12 +33,9 @@ public class ItemService {
     @Transactional
     public ItemDto updateName(final Long id, final String newName)
             throws ResourceNotFoundException, UnprocessableEntityException {
-        Optional<Item> fromDbById = itemRepository.findById(id);
-        if (fromDbById.isEmpty()) {
-            throw new ResourceNotFoundException("Item with id = " + id + " doesn't exist");
-        }
+        Item item = itemRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Item with id = " + id + " doesn't exist"));
         checkInDbByName(newName);
-        Item item = fromDbById.get();
         item.setName(newName);
         Item savedItem = itemRepository.save(item);
         return objectMapper.convertValue(savedItem, ItemDto.class);
@@ -58,17 +53,13 @@ public class ItemService {
 
     @Transactional
     public void deleteById(final Long id) {
-        if (itemRepository.findById(id).isEmpty()) {
-            return;
-        }
-        itemRepository.deleteById(id);
+        itemRepository.findById(id).ifPresent(item -> itemRepository.deleteById(id));
     }
 
     private void checkInDbByName(final String itemName) throws UnprocessableEntityException {
-        Optional<Item> fromDbByName = itemRepository.readByName(itemName);
-        if (fromDbByName.isPresent()) {
+        itemRepository.readByName(itemName).ifPresent(item -> {
             throw new UnprocessableEntityException(ITEM_NAME_SHOULD_BE_UNIQUE_LITERAL);
-        }
+        });
     }
 
 }

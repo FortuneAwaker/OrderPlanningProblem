@@ -1,14 +1,13 @@
 package com.itechart.orderplanningproblem.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itechart.orderplanningproblem.dto.OrderDto;
 import com.itechart.orderplanningproblem.dto.CreateOrderDto;
+import com.itechart.orderplanningproblem.dto.OrderDto;
 import com.itechart.orderplanningproblem.entity.Customer;
 import com.itechart.orderplanningproblem.entity.Distance;
 import com.itechart.orderplanningproblem.entity.Item;
 import com.itechart.orderplanningproblem.entity.Order;
 import com.itechart.orderplanningproblem.entity.Warehouse;
-import com.itechart.orderplanningproblem.entity.WarehouseItem;
 import com.itechart.orderplanningproblem.error.exception.ResourceNotFoundException;
 import com.itechart.orderplanningproblem.error.exception.UnprocessableEntityException;
 import com.itechart.orderplanningproblem.repository.CustomerRepository;
@@ -23,7 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 @RequiredArgsConstructor
@@ -61,50 +60,45 @@ public class OrderService {
 
     @Transactional
     public void deleteById(final Long id) {
-        if (orderRepository.findById(id).isEmpty()) {
-            return;
-        }
-        orderRepository.deleteById(id);
+        orderRepository.findById(id).ifPresent(order -> orderRepository.deleteById(id));
     }
 
     private Order validateOrder(final CreateOrderDto createOrderDto) throws ResourceNotFoundException {
         String itemName = createOrderDto.getItem().getName();
-        Optional<Item> itemFromDbByName = itemRepository.readByName(itemName);
-        if (itemFromDbByName.isEmpty()) {
-            throw new ResourceNotFoundException(NO_SUCH_ITEM_LITERAL + itemName);
-        }
-        Optional<Customer> customerFromDbById = customerRepository.findById(createOrderDto.getCustomerId());
-        if (customerFromDbById.isEmpty()) {
-            throw new ResourceNotFoundException(NO_SUCH_CUSTOMER_LITERAL + createOrderDto.getCustomerId());
-        }
+        Item itemFromDbByName = itemRepository.readByName(itemName)
+                .orElseThrow(() -> new ResourceNotFoundException(NO_SUCH_ITEM_LITERAL + itemName));
+        Customer customerFromDbById = customerRepository.findById(createOrderDto.getCustomerId())
+                .orElseThrow(() -> new ResourceNotFoundException(NO_SUCH_CUSTOMER_LITERAL
+                        + createOrderDto.getCustomerId()));
         return new Order(null, createOrderDto.getAmount(), null,
-                itemFromDbByName.get(), customerFromDbById.get(), null);
+                itemFromDbByName, customerFromDbById, null);
     }
 
     private void orderItemFromWarehouse(Order order) throws UnprocessableEntityException {
         List<Warehouse> sortedWarehouses = warehouseRepository.findWarehouseForCustomer(order.getCustomer().getId());
-        boolean processed = false;
+        AtomicBoolean processed = new AtomicBoolean(false);
         for (Warehouse warehouse: sortedWarehouses) {
-            for (WarehouseItem item: warehouse.getItems()) {
-                if (item.getItem().equals(order.getItem()) && item.getAmount() >= order.getAmount()) {
-                    item.setAmount(item.getAmount() - order.getAmount());
-                    if (item.getAmount() == 0) {
-                        warehouse.getItems().remove(item);
-                    }
-                    warehouseRepository.save(warehouse);
-                    order.setWarehouse(warehouse);
-                    Distance distance = distanceRepository
-                            .findDistanceByCustomerIdAndWarehouseId(order.getCustomer().getId(), warehouse.getId());
-                    order.setDistance(distance.getDistanceValue());
-                    processed = true;
-                    break;
-                }
-            }
-            if (processed) {
+            warehouse.getItems()
+                    .stream()
+                    .filter(item -> item.getItem().equals(order.getItem()) && item.getAmount() >= order.getAmount())
+                    .findFirst()
+                    .ifPresent(warehouseItem -> {
+                        warehouseItem.setAmount(warehouseItem.getAmount() - order.getAmount());
+                        if (warehouseItem.getAmount() == 0) {
+                            warehouse.getItems().remove(warehouseItem);
+                        }
+                        warehouseRepository.save(warehouse);
+                        order.setWarehouse(warehouse);
+                        Distance distance = distanceRepository
+                                .findDistanceByCustomerIdAndWarehouseId(order.getCustomer().getId(), warehouse.getId());
+                        order.setDistance(distance.getDistanceValue());
+                        processed.set(true);
+                    });
+            if (processed.get()) {
                 break;
             }
         }
-        if (!processed) {
+        if (!processed.get()){
             throw new UnprocessableEntityException("There is not any warehouse" +
                     " that contains that item with such amount!");
         }
