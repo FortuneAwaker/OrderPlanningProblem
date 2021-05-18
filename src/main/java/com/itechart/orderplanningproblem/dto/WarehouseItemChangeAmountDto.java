@@ -24,7 +24,7 @@ public class WarehouseItemChangeAmountDto {
     @DecimalMin(value = "0.0", message = "Amount can't be less than 0!")
     private Double amount;
     @Valid
-    private ItemDtoWithoutId item;
+    private ItemDto item;
     private String operation;
 
 }

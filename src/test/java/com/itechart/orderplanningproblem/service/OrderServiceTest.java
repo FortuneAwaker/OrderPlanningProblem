@@ -1,12 +1,11 @@
 package com.itechart.orderplanningproblem.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itechart.orderplanningproblem.dto.CustomerDtoWithId;
-import com.itechart.orderplanningproblem.dto.ItemDtoWithId;
-import com.itechart.orderplanningproblem.dto.ItemDtoWithoutId;
-import com.itechart.orderplanningproblem.dto.OrderDtoWithId;
-import com.itechart.orderplanningproblem.dto.OrderDtoWithoutId;
-import com.itechart.orderplanningproblem.dto.WarehouseDtoWithId;
+import com.itechart.orderplanningproblem.dto.CustomerDto;
+import com.itechart.orderplanningproblem.dto.ItemDto;
+import com.itechart.orderplanningproblem.dto.OrderDto;
+import com.itechart.orderplanningproblem.dto.CreateOrderDto;
+import com.itechart.orderplanningproblem.dto.WarehouseDto;
 import com.itechart.orderplanningproblem.entity.Customer;
 import com.itechart.orderplanningproblem.entity.Distance;
 import com.itechart.orderplanningproblem.entity.Item;
@@ -75,7 +74,7 @@ class OrderServiceTest {
                 .id(1L)
                 .name(itemName)
                 .build();
-        ItemDtoWithId itemDto = ItemDtoWithId.builder()
+        ItemDto itemDto = ItemDto.builder()
                 .id(1L)
                 .name(itemName)
                 .build();
@@ -85,7 +84,7 @@ class OrderServiceTest {
                 .latitude(55.0055)
                 .longitude(24.454732)
                 .build();
-        CustomerDtoWithId customerDto = CustomerDtoWithId.builder()
+        CustomerDto customerDto = CustomerDto.builder()
                 .id(1L)
                 .name("Customer")
                 .latitude(55.0055)
@@ -98,7 +97,7 @@ class OrderServiceTest {
                 .longitude(54.6688)
                 .items(new ArrayList<>())
                 .build();
-        WarehouseDtoWithId warehouseDto = WarehouseDtoWithId.builder()
+        WarehouseDto warehouseDto = WarehouseDto.builder()
                 .id(1L)
                 .identifier("Warehouse")
                 .latitude(22.12345)
@@ -113,7 +112,7 @@ class OrderServiceTest {
                 .warehouse(warehouse)
                 .distance(distanceValue)
                 .build();
-        OrderDtoWithId orderDto = OrderDtoWithId.builder()
+        OrderDto orderDto = OrderDto.builder()
                 .id(orderId)
                 .item(itemDto)
                 .amount(amount)
@@ -123,7 +122,7 @@ class OrderServiceTest {
                 .build();
         // when
         Mockito.when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
-        Mockito.when(objectMapper.convertValue(order, OrderDtoWithId.class))
+        Mockito.when(objectMapper.convertValue(order, OrderDto.class))
                 .thenReturn(orderDto);
 
         // then
@@ -143,7 +142,7 @@ class OrderServiceTest {
                 .id(1L)
                 .name(itemName)
                 .build();
-        ItemDtoWithId itemDto = ItemDtoWithId.builder()
+        ItemDto itemDto = ItemDto.builder()
                 .id(1L)
                 .name(itemName)
                 .build();
@@ -153,7 +152,7 @@ class OrderServiceTest {
                 .latitude(55.0055)
                 .longitude(24.454732)
                 .build();
-        CustomerDtoWithId customerDto = CustomerDtoWithId.builder()
+        CustomerDto customerDto = CustomerDto.builder()
                 .id(1L)
                 .name("Customer")
                 .latitude(55.0055)
@@ -166,7 +165,7 @@ class OrderServiceTest {
                 .longitude(54.6688)
                 .items(new ArrayList<>())
                 .build();
-        WarehouseDtoWithId warehouseDto = WarehouseDtoWithId.builder()
+        WarehouseDto warehouseDto = WarehouseDto.builder()
                 .id(1L)
                 .identifier("Warehouse")
                 .latitude(22.12345)
@@ -181,7 +180,7 @@ class OrderServiceTest {
                 .warehouse(warehouse)
                 .distance(distanceValue)
                 .build();
-        OrderDtoWithId orderDto = OrderDtoWithId.builder()
+        OrderDto orderDto = OrderDto.builder()
                 .id(orderId)
                 .item(itemDto)
                 .amount(amount)
@@ -190,12 +189,12 @@ class OrderServiceTest {
                 .distance(distanceValue)
                 .build();
         List<Order> orderList = Collections.singletonList(order);
-        List<OrderDtoWithId> orderDtoWithIdList = Collections.singletonList(orderDto);
+        List<OrderDto> orderDtoList = Collections.singletonList(orderDto);
         Page<Order> orderPage = new PageImpl<>(orderList);
-        Page<OrderDtoWithId> orderDtoWithIdPage = new PageImpl<>(orderDtoWithIdList);
+        Page<OrderDto> orderDtoWithIdPage = new PageImpl<>(orderDtoList);
         // when
         Mockito.when(orderRepository.findAll(pageRequest)).thenReturn(orderPage);
-        Mockito.when(objectMapper.convertValue(order, OrderDtoWithId.class))
+        Mockito.when(objectMapper.convertValue(order, OrderDto.class))
                 .thenReturn(orderDto);
         // then
         Assertions.assertEquals(orderDtoWithIdPage, orderService.readPage(pageRequest));
@@ -214,11 +213,8 @@ class OrderServiceTest {
                 .id(1L)
                 .name(itemName)
                 .build();
-        ItemDtoWithId itemDto = ItemDtoWithId.builder()
+        ItemDto itemDto = ItemDto.builder()
                 .id(1L)
-                .name(itemName)
-                .build();
-        ItemDtoWithoutId itemDtoWithoutId = ItemDtoWithoutId.builder()
                 .name(itemName)
                 .build();
         Customer customer = Customer.builder()
@@ -227,7 +223,7 @@ class OrderServiceTest {
                 .latitude(55.0055)
                 .longitude(24.454732)
                 .build();
-        CustomerDtoWithId customerDto = CustomerDtoWithId.builder()
+        CustomerDto customerDto = CustomerDto.builder()
                 .id(customerId)
                 .name("Customer")
                 .latitude(55.0055)
@@ -256,7 +252,7 @@ class OrderServiceTest {
         warehouse.getItems().add(warehouseItem);
         List<Warehouse> warehouseList = new ArrayList<>();
         warehouseList.add(warehouse);
-        WarehouseDtoWithId warehouseDto = WarehouseDtoWithId.builder()
+        WarehouseDto warehouseDto = WarehouseDto.builder()
                 .id(1L)
                 .identifier("Warehouse")
                 .latitude(22.12345)
@@ -284,12 +280,12 @@ class OrderServiceTest {
                 .warehouse(warehouse)
                 .distance(distanceValue)
                 .build();
-        OrderDtoWithoutId orderDtoToBeCreated = OrderDtoWithoutId.builder()
-                .item(itemDtoWithoutId)
+        CreateOrderDto orderDtoToBeCreated = CreateOrderDto.builder()
+                .item(itemDto)
                 .amount(amount)
                 .customerId(customerId)
                 .build();
-        OrderDtoWithId createdOrderDto = OrderDtoWithId.builder()
+        OrderDto createdOrderDto = OrderDto.builder()
                 .id(orderId)
                 .item(itemDto)
                 .amount(amount)
@@ -305,7 +301,7 @@ class OrderServiceTest {
         Mockito.when(distanceRepository.findDistanceByCustomerAndWarehouse(
                 order.getCustomer().getId(), warehouse.getId())).thenReturn(distance);
         Mockito.when(orderRepository.save(order)).thenReturn(createdOrder);
-        Mockito.when(objectMapper.convertValue(createdOrder, OrderDtoWithId.class))
+        Mockito.when(objectMapper.convertValue(createdOrder, OrderDto.class))
                 .thenReturn(createdOrderDto);
 
         // then

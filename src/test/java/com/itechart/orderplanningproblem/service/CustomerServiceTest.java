@@ -1,8 +1,7 @@
 package com.itechart.orderplanningproblem.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itechart.orderplanningproblem.dto.CustomerDtoWithId;
-import com.itechart.orderplanningproblem.dto.CustomerDtoWithoutId;
+import com.itechart.orderplanningproblem.dto.CustomerDto;
 import com.itechart.orderplanningproblem.entity.Customer;
 import com.itechart.orderplanningproblem.exception.ResourceNotFoundException;
 import com.itechart.orderplanningproblem.exception.UnprocessableEntityException;
@@ -100,7 +99,7 @@ class CustomerServiceTest {
                 .latitude(latitude)
                 .longitude(longitude)
                 .build();
-        CustomerDtoWithId customerDtoWithId = CustomerDtoWithId.builder()
+        CustomerDto customerDto = CustomerDto.builder()
                 .id(customerId)
                 .name(customerNewName)
                 .latitude(latitude)
@@ -110,10 +109,10 @@ class CustomerServiceTest {
         Mockito.when(customerRepository.findById(customerId)).thenReturn(Optional.of(customerInDbById));
         Mockito.when(customerRepository.readByName(customerNewName)).thenReturn(Optional.empty());
         Mockito.when(customerRepository.save(customerInDbById)).thenReturn(customerInDbAfterNameWasChanged);
-        Mockito.when(objectMapper.convertValue(customerInDbAfterNameWasChanged, CustomerDtoWithId.class))
-                .thenReturn(customerDtoWithId);
+        Mockito.when(objectMapper.convertValue(customerInDbAfterNameWasChanged, CustomerDto.class))
+                .thenReturn(customerDto);
         // then
-        Assertions.assertEquals(customerDtoWithId, customerService.updateName(customerId, customerNewName));
+        Assertions.assertEquals(customerDto, customerService.updateName(customerId, customerNewName));
 
     }
 
@@ -141,7 +140,7 @@ class CustomerServiceTest {
                 .latitude(latitude)
                 .longitude(longitude)
                 .build();
-        CustomerDtoWithId customerDto = CustomerDtoWithId.builder()
+        CustomerDto customerDto = CustomerDto.builder()
                 .id(customerId)
                 .name(customerName)
                 .latitude(latitude)
@@ -149,7 +148,7 @@ class CustomerServiceTest {
                 .build();
         // when
         Mockito.when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
-        Mockito.when(objectMapper.convertValue(customer, CustomerDtoWithId.class))
+        Mockito.when(objectMapper.convertValue(customer, CustomerDto.class))
                 .thenReturn(customerDto);
 
         // then
@@ -171,19 +170,19 @@ class CustomerServiceTest {
                 .latitude(latitude)
                 .longitude(longitude)
                 .build();
-        CustomerDtoWithId customerDto = CustomerDtoWithId.builder()
+        CustomerDto customerDto = CustomerDto.builder()
                 .id(customerId)
                 .name(customerName)
                 .latitude(latitude)
                 .longitude(longitude)
                 .build();
         List<Customer> customerList = Collections.singletonList(customer);
-        List<CustomerDtoWithId> customerDtoWithIdList = Collections.singletonList(customerDto);
+        List<CustomerDto> customerDtoList = Collections.singletonList(customerDto);
         Page<Customer> customerPage = new PageImpl<>(customerList);
-        Page<CustomerDtoWithId> customerDtoWithIdPage = new PageImpl<>(customerDtoWithIdList);
+        Page<CustomerDto> customerDtoWithIdPage = new PageImpl<>(customerDtoList);
         // when
         Mockito.when(customerRepository.findAll(pageRequest)).thenReturn(customerPage);
-        Mockito.when(objectMapper.convertValue(customer, CustomerDtoWithId.class))
+        Mockito.when(objectMapper.convertValue(customer, CustomerDto.class))
                 .thenReturn(customerDto);
         // then
         Assertions.assertEquals(customerDtoWithIdPage, customerService.readPage(pageRequest));
@@ -209,12 +208,12 @@ class CustomerServiceTest {
                 .latitude(latitude)
                 .longitude(longitude)
                 .build();
-        CustomerDtoWithoutId customerDtoToBeCreated = CustomerDtoWithoutId.builder()
+        CustomerDto customerDtoToBeCreated = CustomerDto.builder()
                 .name(customerName)
                 .latitude(latitude)
                 .longitude(longitude)
                 .build();
-        CustomerDtoWithId createdCustomerDto = CustomerDtoWithId.builder()
+        CustomerDto createdCustomerDto = CustomerDto.builder()
                 .id(customerId)
                 .name(customerName)
                 .latitude(latitude)
@@ -227,7 +226,7 @@ class CustomerServiceTest {
         Mockito.when(warehouseRepository.findAll()).thenReturn(Collections.emptyList());
         Mockito.when(distanceRepository.saveAll(new ArrayList<>())).thenReturn(Collections.emptyList());
         Mockito.when(customerRepository.save(customer)).thenReturn(createdCustomer);
-        Mockito.when(objectMapper.convertValue(createdCustomer, CustomerDtoWithId.class))
+        Mockito.when(objectMapper.convertValue(createdCustomer, CustomerDto.class))
                 .thenReturn(createdCustomerDto);
 
         // then

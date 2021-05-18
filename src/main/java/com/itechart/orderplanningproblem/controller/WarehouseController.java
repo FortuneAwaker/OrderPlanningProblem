@@ -1,9 +1,8 @@
 package com.itechart.orderplanningproblem.controller;
 
-import com.itechart.orderplanningproblem.dto.WarehouseDtoWithId;
-import com.itechart.orderplanningproblem.dto.WarehouseDtoWithoutId;
+import com.itechart.orderplanningproblem.dto.WarehouseDto;
 import com.itechart.orderplanningproblem.dto.WarehouseItemChangeAmountDto;
-import com.itechart.orderplanningproblem.dto.WarehouseItemDtoWithoutId;
+import com.itechart.orderplanningproblem.dto.WarehouseItemDto;
 import com.itechart.orderplanningproblem.exception.ConflictWithCurrentWarehouseStateException;
 import com.itechart.orderplanningproblem.exception.ResourceNotFoundException;
 import com.itechart.orderplanningproblem.exception.UnprocessableEntityException;
@@ -41,14 +40,15 @@ public class WarehouseController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public WarehouseDtoWithId createWarehouse(@Valid @RequestBody WarehouseDtoWithoutId warehouseDtoWithoutId)
+    public WarehouseDto createWarehouse(@Valid @RequestBody WarehouseDto warehouseDto)
             throws UnprocessableEntityException {
-        return warehouseService.create(warehouseDtoWithoutId);
+        warehouseDto.setId(null);
+        return warehouseService.create(warehouseDto);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public WarehouseDtoWithId updateWarehouseIdentifier(
+    public WarehouseDto updateWarehouseIdentifier(
             @Min(value = 1, message = "id must be more or equals 1")
             @PathVariable Long id,
             @Pattern(regexp = "^[A-Z][0-9A-Za-z\\s-]*$",
@@ -61,27 +61,27 @@ public class WarehouseController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Page<WarehouseDtoWithId> getPage(
+    public Page<WarehouseDto> getPage(
             @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
         return warehouseService.readPage(pageable);
     }
 
     @GetMapping("/{id}")
-    public WarehouseDtoWithId getById(
+    public WarehouseDto getById(
             @Min(value = 1, message = "id must be more or equals 1")
             @PathVariable Long id) throws ResourceNotFoundException {
         return warehouseService.readById(id);
     }
 
     @PutMapping("/{warehouseId}/item")
-    public WarehouseDtoWithId putItemToWarehouse(
-            @Valid @RequestBody WarehouseItemDtoWithoutId warehouseItemDtoWithoutId,
+    public WarehouseDto putItemToWarehouse(
+            @Valid @RequestBody WarehouseItemDto warehouseItemDto,
             @Min(value = 1, message = "id must be more or equals 1")
             @PathVariable Long warehouseId,
             @RequestParam String operation)
             throws ResourceNotFoundException, ConflictWithCurrentWarehouseStateException, UnprocessableEntityException {
         return warehouseService.changeAmountOfWarehouseItem(new WarehouseItemChangeAmountDto(warehouseId,
-                warehouseItemDtoWithoutId.getAmount(), warehouseItemDtoWithoutId.getItem(), operation));
+                warehouseItemDto.getAmount(), warehouseItemDto.getItem(), operation));
     }
 
     @DeleteMapping("/{id}")

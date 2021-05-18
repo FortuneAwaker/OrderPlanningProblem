@@ -1,9 +1,9 @@
 package com.itechart.orderplanningproblem.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itechart.orderplanningproblem.dto.CustomerDtoWithId;
-import com.itechart.orderplanningproblem.dto.DistanceWithIdDto;
-import com.itechart.orderplanningproblem.dto.WarehouseDtoWithId;
+import com.itechart.orderplanningproblem.dto.CustomerDto;
+import com.itechart.orderplanningproblem.dto.DistanceDto;
+import com.itechart.orderplanningproblem.dto.WarehouseDto;
 import com.itechart.orderplanningproblem.entity.Customer;
 import com.itechart.orderplanningproblem.entity.Distance;
 import com.itechart.orderplanningproblem.entity.Warehouse;
@@ -70,7 +70,7 @@ class DistanceServiceTest {
                 .latitude(55.0055)
                 .longitude(24.454732)
                 .build();
-        CustomerDtoWithId customerDto = CustomerDtoWithId.builder()
+        CustomerDto customerDto = CustomerDto.builder()
                 .id(1L)
                 .name("Customer")
                 .latitude(55.0055)
@@ -83,7 +83,7 @@ class DistanceServiceTest {
                 .longitude(54.6688)
                 .items(new ArrayList<>())
                 .build();
-        WarehouseDtoWithId warehouseDto = WarehouseDtoWithId.builder()
+        WarehouseDto warehouseDto = WarehouseDto.builder()
                 .id(1L)
                 .identifier("Warehouse")
                 .latitude(22.12345)
@@ -96,7 +96,7 @@ class DistanceServiceTest {
                 .customer(customer)
                 .warehouse(warehouse)
                 .build();
-        DistanceWithIdDto distanceDto = DistanceWithIdDto.builder()
+        DistanceDto distanceDto = DistanceDto.builder()
                 .id(distanceId)
                 .distanceValue(distanceValue)
                 .customer(customerDto)
@@ -104,7 +104,7 @@ class DistanceServiceTest {
                 .build();
         // when
         Mockito.when(distanceRepository.findById(distanceId)).thenReturn(Optional.of(distance));
-        Mockito.when(objectMapper.convertValue(distance, DistanceWithIdDto.class))
+        Mockito.when(objectMapper.convertValue(distance, DistanceDto.class))
                 .thenReturn(distanceDto);
 
         // then

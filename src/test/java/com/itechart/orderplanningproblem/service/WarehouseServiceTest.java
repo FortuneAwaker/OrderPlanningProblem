@@ -1,8 +1,7 @@
 package com.itechart.orderplanningproblem.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itechart.orderplanningproblem.dto.WarehouseDtoWithId;
-import com.itechart.orderplanningproblem.dto.WarehouseDtoWithoutId;
+import com.itechart.orderplanningproblem.dto.WarehouseDto;
 import com.itechart.orderplanningproblem.entity.Warehouse;
 import com.itechart.orderplanningproblem.exception.ResourceNotFoundException;
 import com.itechart.orderplanningproblem.exception.UnprocessableEntityException;
@@ -100,7 +99,7 @@ class WarehouseServiceTest {
                 .longitude(54.6688)
                 .items(new ArrayList<>())
                 .build();
-        WarehouseDtoWithId warehouseDtoWithId = WarehouseDtoWithId.builder()
+        WarehouseDto warehouseDto = WarehouseDto.builder()
                 .id(warehouseId)
                 .identifier(warehouseNewIdentifier)
                 .latitude(22.12345)
@@ -111,10 +110,10 @@ class WarehouseServiceTest {
         Mockito.when(warehouseRepository.findById(warehouseId)).thenReturn(Optional.of(warehouseInDbById));
         Mockito.when(warehouseRepository.readByIdentifier(warehouseNewIdentifier)).thenReturn(Optional.empty());
         Mockito.when(warehouseRepository.save(warehouseInDbById)).thenReturn(warehouseInDbAfterIdentifierWasChanged);
-        Mockito.when(objectMapper.convertValue(warehouseInDbAfterIdentifierWasChanged, WarehouseDtoWithId.class))
-                .thenReturn(warehouseDtoWithId);
+        Mockito.when(objectMapper.convertValue(warehouseInDbAfterIdentifierWasChanged, WarehouseDto.class))
+                .thenReturn(warehouseDto);
         // then
-        Assertions.assertEquals(warehouseDtoWithId, warehouseService
+        Assertions.assertEquals(warehouseDto, warehouseService
                 .updateIdentifier(warehouseId, warehouseNewIdentifier));
 
     }
@@ -142,7 +141,7 @@ class WarehouseServiceTest {
                 .longitude(54.6688)
                 .items(new ArrayList<>())
                 .build();
-        WarehouseDtoWithId warehouseDto = WarehouseDtoWithId.builder()
+        WarehouseDto warehouseDto = WarehouseDto.builder()
                 .id(warehouseId)
                 .identifier(warehouseIdentifier)
                 .latitude(22.12345)
@@ -151,7 +150,7 @@ class WarehouseServiceTest {
                 .build();
         // when
         Mockito.when(warehouseRepository.findById(warehouseId)).thenReturn(Optional.of(warehouse));
-        Mockito.when(objectMapper.convertValue(warehouse, WarehouseDtoWithId.class))
+        Mockito.when(objectMapper.convertValue(warehouse, WarehouseDto.class))
                 .thenReturn(warehouseDto);
 
         // then
@@ -172,7 +171,7 @@ class WarehouseServiceTest {
                 .longitude(54.6688)
                 .items(new ArrayList<>())
                 .build();
-        WarehouseDtoWithId warehouseDto = WarehouseDtoWithId.builder()
+        WarehouseDto warehouseDto = WarehouseDto.builder()
                 .id(warehouseId)
                 .identifier(warehouseIdentifier)
                 .latitude(22.12345)
@@ -180,12 +179,12 @@ class WarehouseServiceTest {
                 .items(new ArrayList<>())
                 .build();
         List<Warehouse> warehouseList = Collections.singletonList(warehouse);
-        List<WarehouseDtoWithId> warehouseDtoWithIdList = Collections.singletonList(warehouseDto);
+        List<WarehouseDto> warehouseDtoList = Collections.singletonList(warehouseDto);
         Page<Warehouse> warehousePage = new PageImpl<>(warehouseList);
-        Page<WarehouseDtoWithId> warehouseDtoWithIdPage = new PageImpl<>(warehouseDtoWithIdList);
+        Page<WarehouseDto> warehouseDtoWithIdPage = new PageImpl<>(warehouseDtoList);
         // when
         Mockito.when(warehouseRepository.findAll(pageRequest)).thenReturn(warehousePage);
-        Mockito.when(objectMapper.convertValue(warehouse, WarehouseDtoWithId.class))
+        Mockito.when(objectMapper.convertValue(warehouse, WarehouseDto.class))
                 .thenReturn(warehouseDto);
         // then
         Assertions.assertEquals(warehouseDtoWithIdPage, warehouseService.readPage(pageRequest));
@@ -210,13 +209,13 @@ class WarehouseServiceTest {
                 .longitude(54.6688)
                 .items(new ArrayList<>())
                 .build();
-        WarehouseDtoWithoutId warehouseDtoToBeCreated = WarehouseDtoWithoutId.builder()
+        WarehouseDto warehouseDtoToBeCreated = WarehouseDto.builder()
                 .identifier(warehouseIdentifier)
                 .latitude(22.12345)
                 .longitude(54.6688)
                 .items(new ArrayList<>())
                 .build();
-        WarehouseDtoWithId createdWarehouseDto = WarehouseDtoWithId.builder()
+        WarehouseDto createdWarehouseDto = WarehouseDto.builder()
                 .id(warehouseId)
                 .identifier(warehouseIdentifier)
                 .latitude(22.12345)
@@ -230,7 +229,7 @@ class WarehouseServiceTest {
         Mockito.when(customerRepository.findAll()).thenReturn(Collections.emptyList());
         Mockito.when(distanceRepository.saveAll(new ArrayList<>())).thenReturn(Collections.emptyList());
         Mockito.when(warehouseRepository.save(warehouse)).thenReturn(createdWarehouse);
-        Mockito.when(objectMapper.convertValue(createdWarehouse, WarehouseDtoWithId.class))
+        Mockito.when(objectMapper.convertValue(createdWarehouse, WarehouseDto.class))
                 .thenReturn(createdWarehouseDto);
 
         // then

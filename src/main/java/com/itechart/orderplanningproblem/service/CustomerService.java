@@ -1,8 +1,7 @@
 package com.itechart.orderplanningproblem.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itechart.orderplanningproblem.dto.CustomerDtoWithId;
-import com.itechart.orderplanningproblem.dto.CustomerDtoWithoutId;
+import com.itechart.orderplanningproblem.dto.CustomerDto;
 import com.itechart.orderplanningproblem.entity.Customer;
 import com.itechart.orderplanningproblem.entity.Distance;
 import com.itechart.orderplanningproblem.entity.Warehouse;
@@ -35,13 +34,13 @@ public class CustomerService {
             "Customer name should be unique!";
 
     @Transactional
-    public CustomerDtoWithId create(final CustomerDtoWithoutId customerDtoWithoutId)
+    public CustomerDto create(final CustomerDto customerDto)
             throws UnprocessableEntityException {
-        checkInDbByName(customerDtoWithoutId.getName());
-        Customer customerFromDto = objectMapper.convertValue(customerDtoWithoutId, Customer.class);
+        checkInDbByName(customerDto.getName());
+        Customer customerFromDto = objectMapper.convertValue(customerDto, Customer.class);
         Customer createdCustomer = customerRepository.save(customerFromDto);
         mapCustomerToExistentWarehouses(createdCustomer);
-        return objectMapper.convertValue(createdCustomer, CustomerDtoWithId.class);
+        return objectMapper.convertValue(createdCustomer, CustomerDto.class);
     }
 
     private void mapCustomerToExistentWarehouses(final Customer customer) {
@@ -57,19 +56,19 @@ public class CustomerService {
         distanceRepository.saveAll(distances);
     }
 
-    public CustomerDtoWithId readById(final Long id) throws ResourceNotFoundException {
+    public CustomerDto readById(final Long id) throws ResourceNotFoundException {
         return customerRepository.findById(id).map(
-                customer -> objectMapper.convertValue(customer, CustomerDtoWithId.class))
+                customer -> objectMapper.convertValue(customer, CustomerDto.class))
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with id = " + id + " doesn't exist"));
     }
 
-    public Page<CustomerDtoWithId> readPage(Pageable pageable) {
+    public Page<CustomerDto> readPage(Pageable pageable) {
         return customerRepository.findAll(pageable)
-                .map(customer -> objectMapper.convertValue(customer, CustomerDtoWithId.class));
+                .map(customer -> objectMapper.convertValue(customer, CustomerDto.class));
     }
 
     @Transactional
-    public CustomerDtoWithId updateName(final Long id, final String newName)
+    public CustomerDto updateName(final Long id, final String newName)
             throws ResourceNotFoundException, UnprocessableEntityException {
         Optional<Customer> fromDbById = customerRepository.findById(id);
         if (fromDbById.isEmpty()) {
@@ -79,7 +78,7 @@ public class CustomerService {
         Customer customer = fromDbById.get();
         customer.setName(newName);
         Customer savedCustomer = customerRepository.save(customer);
-        return objectMapper.convertValue(savedCustomer, CustomerDtoWithId.class);
+        return objectMapper.convertValue(savedCustomer, CustomerDto.class);
     }
 
     @Transactional

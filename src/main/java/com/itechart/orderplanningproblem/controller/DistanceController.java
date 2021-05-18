@@ -1,6 +1,6 @@
 package com.itechart.orderplanningproblem.controller;
 
-import com.itechart.orderplanningproblem.dto.DistanceWithIdDto;
+import com.itechart.orderplanningproblem.dto.DistanceDto;
 import com.itechart.orderplanningproblem.exception.ResourceNotFoundException;
 import com.itechart.orderplanningproblem.service.DistanceService;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class DistanceController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public DistanceWithIdDto getById(
+    public DistanceDto getById(
             @Min(value = 1, message = "id must be more or equals 1")
             @PathVariable Long id) throws ResourceNotFoundException {
         return distanceService.readById(id);

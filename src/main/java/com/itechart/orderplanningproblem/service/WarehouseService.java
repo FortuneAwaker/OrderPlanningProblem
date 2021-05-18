@@ -1,8 +1,7 @@
 package com.itechart.orderplanningproblem.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itechart.orderplanningproblem.dto.WarehouseDtoWithId;
-import com.itechart.orderplanningproblem.dto.WarehouseDtoWithoutId;
+import com.itechart.orderplanningproblem.dto.WarehouseDto;
 import com.itechart.orderplanningproblem.dto.WarehouseItemChangeAmountDto;
 import com.itechart.orderplanningproblem.entity.Customer;
 import com.itechart.orderplanningproblem.entity.Distance;
@@ -41,13 +40,13 @@ public class WarehouseService {
             " already exists. Warehouse identifier should be unique!";
 
     @Transactional
-    public WarehouseDtoWithId create(final WarehouseDtoWithoutId warehouseDtoWithoutId) throws UnprocessableEntityException {
-        checkInDbByIdentifier(warehouseDtoWithoutId.getIdentifier());
-        Warehouse warehouseFromDto = objectMapper.convertValue(warehouseDtoWithoutId, Warehouse.class);
+    public WarehouseDto create(final WarehouseDto warehouseDto) throws UnprocessableEntityException {
+        checkInDbByIdentifier(warehouseDto.getIdentifier());
+        Warehouse warehouseFromDto = objectMapper.convertValue(warehouseDto, Warehouse.class);
         mapWarehouseItems(warehouseFromDto);
         Warehouse createdWarehouse = warehouseRepository.save(warehouseFromDto);
         mapWarehouseToExistentCustomers(createdWarehouse);
-        return objectMapper.convertValue(createdWarehouse, WarehouseDtoWithId.class);
+        return objectMapper.convertValue(createdWarehouse, WarehouseDto.class);
     }
 
     private void mapWarehouseToExistentCustomers(final Warehouse warehouse) {
@@ -64,17 +63,17 @@ public class WarehouseService {
     }
 
     @Transactional
-    public WarehouseDtoWithId updateIdentifier(final Long id, final String newIdentifier)
+    public WarehouseDto updateIdentifier(final Long id, final String newIdentifier)
             throws ResourceNotFoundException, UnprocessableEntityException {
         Warehouse warehouse = findWarehouseById(id);
         checkInDbByIdentifier(newIdentifier);
         warehouse.setIdentifier(newIdentifier);
         Warehouse savedWarehouse = warehouseRepository.save(warehouse);
-        return objectMapper.convertValue(savedWarehouse, WarehouseDtoWithId.class);
+        return objectMapper.convertValue(savedWarehouse, WarehouseDto.class);
     }
 
     @Transactional
-    public WarehouseDtoWithId changeAmountOfWarehouseItem(
+    public WarehouseDto changeAmountOfWarehouseItem(
             final WarehouseItemChangeAmountDto warehouseItemChangeAmountDto)
             throws ResourceNotFoundException, UnprocessableEntityException, ConflictWithCurrentWarehouseStateException {
         if (warehouseItemChangeAmountDto.getOperation().equals("put")) {
@@ -87,7 +86,7 @@ public class WarehouseService {
     }
 
 
-    private WarehouseDtoWithId increaseAmountOfWarehouseItem(
+    private WarehouseDto increaseAmountOfWarehouseItem(
             final WarehouseItemChangeAmountDto warehouseItemChangeAmountDto) throws ResourceNotFoundException {
         Warehouse warehouse = findWarehouseById(warehouseItemChangeAmountDto.getWarehouseId());
         boolean processed = false;
@@ -106,10 +105,10 @@ public class WarehouseService {
                     itemToSave, warehouse));
         }
         Warehouse updatedWarehouse = warehouseRepository.save(warehouse);
-        return objectMapper.convertValue(updatedWarehouse, WarehouseDtoWithId.class);
+        return objectMapper.convertValue(updatedWarehouse, WarehouseDto.class);
     }
 
-    private WarehouseDtoWithId decreaseAmountOfWarehouseItem(
+    private WarehouseDto decreaseAmountOfWarehouseItem(
             final WarehouseItemChangeAmountDto warehouseItemChangeAmountDto)
             throws ResourceNotFoundException, ConflictWithCurrentWarehouseStateException {
         Warehouse warehouse = findWarehouseById(warehouseItemChangeAmountDto.getWarehouseId());
@@ -117,7 +116,7 @@ public class WarehouseService {
         for (WarehouseItem item : warehouse.getItems()
         ) {
             if (item.getItem().getName().equals(warehouseItemChangeAmountDto.getItem().getName())) {
-                if (item.getAmount() - warehouseItemChangeAmountDto.getAmount() >= 0) {
+                if (item.getAmount() >= warehouseItemChangeAmountDto.getAmount()) {
                     item.setAmount(item.getAmount() - warehouseItemChangeAmountDto.getAmount());
                     if (item.getAmount() == 0) {
                         warehouse.getItems().remove(item);
@@ -136,18 +135,18 @@ public class WarehouseService {
                     + warehouse.getId());
         }
         Warehouse updatedWarehouse = warehouseRepository.save(warehouse);
-        return objectMapper.convertValue(updatedWarehouse, WarehouseDtoWithId.class);
+        return objectMapper.convertValue(updatedWarehouse, WarehouseDto.class);
     }
 
-    public WarehouseDtoWithId readById(final Long id) throws ResourceNotFoundException {
+    public WarehouseDto readById(final Long id) throws ResourceNotFoundException {
         return warehouseRepository.findById(id).map(
-                warehouse -> objectMapper.convertValue(warehouse, WarehouseDtoWithId.class))
+                warehouse -> objectMapper.convertValue(warehouse, WarehouseDto.class))
                 .orElseThrow(() -> new ResourceNotFoundException("Warehouse with id = " + id + " doesn't exist"));
     }
 
-    public Page<WarehouseDtoWithId> readPage(Pageable pageable) {
+    public Page<WarehouseDto> readPage(Pageable pageable) {
         return warehouseRepository.findAll(pageable)
-                .map(warehouse -> objectMapper.convertValue(warehouse, WarehouseDtoWithId.class));
+                .map(warehouse -> objectMapper.convertValue(warehouse, WarehouseDto.class));
     }
 
     @Transactional

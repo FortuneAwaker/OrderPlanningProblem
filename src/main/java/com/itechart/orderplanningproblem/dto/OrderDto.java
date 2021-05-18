@@ -14,15 +14,21 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class OrderDtoWithoutId {
+public class OrderDto {
 
+    @Min(value = 1, message = "Id can't be less than 1!")
+    private Long id;
     @NotNull(message = "Amount is mandatory")
     @DecimalMin(value = "0.0", message = "Amount can't be less than 0!")
     private Double amount;
+    @NotNull(message = "Distance is mandatory")
+    @DecimalMin(value = "0.0", message = "Distance can't be less than 0!")
+    private Double distance;
     @Valid
-    private ItemDtoWithoutId item;
-    @NotNull(message = "Customer id is mandatory!")
-    @Min(value = 1, message = "Id can't be less than 1!")
-    private Long customerId;
+    private ItemDto item;
+    @Valid
+    private CustomerDto customer;
+    @Valid
+    private WarehouseDto warehouse;
 
 }

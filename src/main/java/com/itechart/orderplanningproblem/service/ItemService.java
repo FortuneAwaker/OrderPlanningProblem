@@ -1,8 +1,7 @@
 package com.itechart.orderplanningproblem.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itechart.orderplanningproblem.dto.ItemDtoWithId;
-import com.itechart.orderplanningproblem.dto.ItemDtoWithoutId;
+import com.itechart.orderplanningproblem.dto.ItemDto;
 import com.itechart.orderplanningproblem.entity.Item;
 import com.itechart.orderplanningproblem.exception.ResourceNotFoundException;
 import com.itechart.orderplanningproblem.exception.UnprocessableEntityException;
@@ -26,15 +25,15 @@ public class ItemService {
             "Item name should be unique!";
 
     @Transactional
-    public ItemDtoWithId create(final ItemDtoWithoutId itemDtoWithoutId) throws UnprocessableEntityException {
-        checkInDbByName(itemDtoWithoutId.getName());
-        Item itemFromDto = objectMapper.convertValue(itemDtoWithoutId, Item.class);
+    public ItemDto create(final ItemDto itemDto) throws UnprocessableEntityException {
+        checkInDbByName(itemDto.getName());
+        Item itemFromDto = objectMapper.convertValue(itemDto, Item.class);
         Item createdItem = itemRepository.save(itemFromDto);
-        return objectMapper.convertValue(createdItem, ItemDtoWithId.class);
+        return objectMapper.convertValue(createdItem, ItemDto.class);
     }
 
     @Transactional
-    public ItemDtoWithId updateName(final Long id, final String newName)
+    public ItemDto updateName(final Long id, final String newName)
             throws ResourceNotFoundException, UnprocessableEntityException {
         Optional<Item> fromDbById = itemRepository.findById(id);
         if (fromDbById.isEmpty()) {
@@ -44,17 +43,17 @@ public class ItemService {
         Item item = fromDbById.get();
         item.setName(newName);
         Item savedItem = itemRepository.save(item);
-        return objectMapper.convertValue(savedItem, ItemDtoWithId.class);
+        return objectMapper.convertValue(savedItem, ItemDto.class);
     }
 
-    public ItemDtoWithId readById(final Long id) throws ResourceNotFoundException {
-        return itemRepository.findById(id).map(item -> objectMapper.convertValue(item, ItemDtoWithId.class))
+    public ItemDto readById(final Long id) throws ResourceNotFoundException {
+        return itemRepository.findById(id).map(item -> objectMapper.convertValue(item, ItemDto.class))
                 .orElseThrow(() -> new ResourceNotFoundException("Item with id = " + id + " doesn't exist"));
     }
 
-    public Page<ItemDtoWithId> readPage(Pageable pageable) {
+    public Page<ItemDto> readPage(Pageable pageable) {
         return itemRepository.findAll(pageable)
-                .map(item -> objectMapper.convertValue(item, ItemDtoWithId.class));
+                .map(item -> objectMapper.convertValue(item, ItemDto.class));
     }
 
     @Transactional

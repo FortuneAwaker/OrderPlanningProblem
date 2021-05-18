@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -33,14 +34,7 @@ public class WarehouseItem {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "warehouse_id")
     @JsonIgnore
+    @ToString.Exclude
     private Warehouse warehouse;
-
-    @Override
-    public String toString() {
-        return "WarehouseItem(id = " + id
-                + ", amount = " + amount
-                + ", item = " + item
-                + ")";
-    }
 
 }

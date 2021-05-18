@@ -1,8 +1,8 @@
 package com.itechart.orderplanningproblem.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itechart.orderplanningproblem.dto.OrderDtoWithId;
-import com.itechart.orderplanningproblem.dto.OrderDtoWithoutId;
+import com.itechart.orderplanningproblem.dto.OrderDto;
+import com.itechart.orderplanningproblem.dto.CreateOrderDto;
 import com.itechart.orderplanningproblem.entity.Customer;
 import com.itechart.orderplanningproblem.entity.Distance;
 import com.itechart.orderplanningproblem.entity.Item;
@@ -40,23 +40,23 @@ public class OrderService {
     private static final String NO_SUCH_CUSTOMER_LITERAL = "There is no customer with id ";
 
     @Transactional
-    public OrderDtoWithId create(final OrderDtoWithoutId orderDtoWithoutId)
+    public OrderDto create(final CreateOrderDto createOrderDto)
             throws UnprocessableEntityException, ResourceNotFoundException {
-        Order orderToCreate = validateOrder(orderDtoWithoutId);
+        Order orderToCreate = validateOrder(createOrderDto);
         orderItemFromWarehouse(orderToCreate);
         Order createdOrder = orderRepository.save(orderToCreate);
-        return objectMapper.convertValue(createdOrder, OrderDtoWithId.class);
+        return objectMapper.convertValue(createdOrder, OrderDto.class);
     }
 
-    public OrderDtoWithId readById(final Long id) throws ResourceNotFoundException {
+    public OrderDto readById(final Long id) throws ResourceNotFoundException {
         return orderRepository.findById(id).map(
-                order -> objectMapper.convertValue(order, OrderDtoWithId.class))
+                order -> objectMapper.convertValue(order, OrderDto.class))
                 .orElseThrow(() -> new ResourceNotFoundException("Order with id = " + id + " doesn't exist"));
     }
 
-    public Page<OrderDtoWithId> readPage(Pageable pageable) {
+    public Page<OrderDto> readPage(Pageable pageable) {
         return orderRepository.findAll(pageable)
-                .map(order -> objectMapper.convertValue(order, OrderDtoWithId.class));
+                .map(order -> objectMapper.convertValue(order, OrderDto.class));
     }
 
     @Transactional
@@ -67,17 +67,17 @@ public class OrderService {
         orderRepository.deleteById(id);
     }
 
-    private Order validateOrder(final OrderDtoWithoutId orderDtoWithoutId) throws ResourceNotFoundException {
-        String itemName = orderDtoWithoutId.getItem().getName();
+    private Order validateOrder(final CreateOrderDto createOrderDto) throws ResourceNotFoundException {
+        String itemName = createOrderDto.getItem().getName();
         Optional<Item> itemFromDbByName = itemRepository.readByName(itemName);
         if (itemFromDbByName.isEmpty()) {
             throw new ResourceNotFoundException(NO_SUCH_ITEM_LITERAL + itemName);
         }
-        Optional<Customer> customerFromDbById = customerRepository.findById(orderDtoWithoutId.getCustomerId());
+        Optional<Customer> customerFromDbById = customerRepository.findById(createOrderDto.getCustomerId());
         if (customerFromDbById.isEmpty()) {
-            throw new ResourceNotFoundException(NO_SUCH_CUSTOMER_LITERAL + orderDtoWithoutId.getCustomerId());
+            throw new ResourceNotFoundException(NO_SUCH_CUSTOMER_LITERAL + createOrderDto.getCustomerId());
         }
-        return new Order(null, orderDtoWithoutId.getAmount(), null,
+        return new Order(null, createOrderDto.getAmount(), null,
                 itemFromDbByName.get(), customerFromDbById.get(), null);
     }
 
