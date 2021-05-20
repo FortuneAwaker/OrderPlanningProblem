@@ -1,13 +1,12 @@
 package com.itechart.orderplanningproblem.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itechart.orderplanningproblem.dto.CustomerDtoWithId;
-import com.itechart.orderplanningproblem.dto.CustomerDtoWithoutId;
+import com.itechart.orderplanningproblem.dto.CustomerDto;
 import com.itechart.orderplanningproblem.entity.Customer;
 import com.itechart.orderplanningproblem.entity.Distance;
 import com.itechart.orderplanningproblem.entity.Warehouse;
-import com.itechart.orderplanningproblem.exception.ResourceNotFoundException;
-import com.itechart.orderplanningproblem.exception.UnprocessableEntityException;
+import com.itechart.orderplanningproblem.error.exception.ResourceNotFoundException;
+import com.itechart.orderplanningproblem.error.exception.UnprocessableEntityException;
 import com.itechart.orderplanningproblem.repository.CustomerRepository;
 import com.itechart.orderplanningproblem.repository.DistanceRepository;
 import com.itechart.orderplanningproblem.repository.WarehouseRepository;
@@ -19,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,66 +34,59 @@ public class CustomerService {
             "Customer name should be unique!";
 
     @Transactional
-    public CustomerDtoWithId create(final CustomerDtoWithoutId customerDtoWithoutId)
-            throws UnprocessableEntityException {
-        checkInDbByName(customerDtoWithoutId.getName());
-        Customer customerFromDto = objectMapper.convertValue(customerDtoWithoutId, Customer.class);
+    public CustomerDto create(final CustomerDto customerDto) {
+        checkInDbByName(customerDto.getName());
+        Customer customerFromDto = objectMapper.convertValue(customerDto, Customer.class);
         Customer createdCustomer = customerRepository.save(customerFromDto);
         mapCustomerToExistentWarehouses(createdCustomer);
-        return objectMapper.convertValue(createdCustomer, CustomerDtoWithId.class);
+        return objectMapper.convertValue(createdCustomer, CustomerDto.class);
     }
 
     private void mapCustomerToExistentWarehouses(final Customer customer) {
         List<Warehouse> allWarehouses = warehouseRepository.findAll();
-        List<Distance> distances = new ArrayList<>();
-        for (Warehouse warehouse: allWarehouses) {
+        List<Distance> distances = allWarehouses.stream().map(warehouse -> {
             double distanceValue = distanceService.getDistanceByLatitudeAndLongitude(
-                    customer.getLatitude(), customer.getLongitude(),
-                    warehouse.getLatitude(), warehouse.getLongitude());
-            Distance distance = new Distance(null, distanceValue, customer, warehouse);
-            distances.add(distance);
-        }
+                    customer.getLocation().getLatitude(), customer.getLocation().getLongitude(),
+                    warehouse.getLocation().getLatitude(), warehouse.getLocation().getLongitude());
+            return new Distance(null, distanceValue, customer, warehouse);
+        }).collect(Collectors.toList());
         distanceRepository.saveAll(distances);
     }
 
-    public CustomerDtoWithId readById(final Long id) throws ResourceNotFoundException {
+    public CustomerDto readById(final Long id) throws ResourceNotFoundException {
         return customerRepository.findById(id).map(
-                customer -> objectMapper.convertValue(customer, CustomerDtoWithId.class))
+                customer -> objectMapper.convertValue(customer, CustomerDto.class))
                 .orElseThrow(() -> new ResourceNotFoundException("Customer with id = " + id + " doesn't exist"));
     }
 
-    public Page<CustomerDtoWithId> readPage(Pageable pageable) {
+    public Page<CustomerDto> readPage(Pageable pageable) {
         return customerRepository.findAll(pageable)
-                .map(customer -> objectMapper.convertValue(customer, CustomerDtoWithId.class));
+                .map(customer -> objectMapper.convertValue(customer, CustomerDto.class));
     }
 
     @Transactional
-    public CustomerDtoWithId updateName(final Long id, final String newName)
-            throws ResourceNotFoundException, UnprocessableEntityException {
-        Optional<Customer> fromDbById = customerRepository.findById(id);
-        if (fromDbById.isEmpty()) {
-            throw new ResourceNotFoundException("Customer with id = " + id + " doesn't exist");
-        }
+    public CustomerDto updateName(final Long id, final String newName)
+            throws ResourceNotFoundException {
+        Customer customer = customerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer with id = " + id + " doesn't exist"));
         checkInDbByName(newName);
-        Customer customer = fromDbById.get();
         customer.setName(newName);
         Customer savedCustomer = customerRepository.save(customer);
-        return objectMapper.convertValue(savedCustomer, CustomerDtoWithId.class);
+        return objectMapper.convertValue(savedCustomer, CustomerDto.class);
     }
 
     @Transactional
     public void deleteById(final Long id) {
-        if (customerRepository.findById(id).isEmpty()) {
-            return;
-        }
-        distanceRepository.deleteByCustomerId(id);
-        customerRepository.deleteById(id);
+        customerRepository.findById(id).ifPresent(customer -> {
+            distanceRepository.deleteByCustomerId(id);
+            customerRepository.deleteById(id);
+        });
+
     }
 
-    private void checkInDbByName(final String customerName) throws UnprocessableEntityException {
-        Optional<Customer> fromDbByName = customerRepository.readByName(customerName);
-        if (fromDbByName.isPresent()) {
+    private void checkInDbByName(final String customerName) {
+        customerRepository.readByName(customerName).ifPresent(customer -> {
             throw new UnprocessableEntityException(CUSTOMER_NAME_SHOULD_BE_UNIQUE_LITERAL);
-        }
+        });
     }
 }

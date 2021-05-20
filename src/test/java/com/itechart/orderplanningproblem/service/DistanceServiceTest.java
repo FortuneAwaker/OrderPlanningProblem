@@ -1,13 +1,15 @@
 package com.itechart.orderplanningproblem.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itechart.orderplanningproblem.dto.CustomerDtoWithId;
-import com.itechart.orderplanningproblem.dto.DistanceWithIdDto;
-import com.itechart.orderplanningproblem.dto.WarehouseDtoWithId;
+import com.itechart.orderplanningproblem.dto.CustomerDto;
+import com.itechart.orderplanningproblem.dto.DistanceDto;
+import com.itechart.orderplanningproblem.dto.LocationDto;
+import com.itechart.orderplanningproblem.dto.WarehouseDto;
 import com.itechart.orderplanningproblem.entity.Customer;
 import com.itechart.orderplanningproblem.entity.Distance;
+import com.itechart.orderplanningproblem.entity.Location;
 import com.itechart.orderplanningproblem.entity.Warehouse;
-import com.itechart.orderplanningproblem.exception.ResourceNotFoundException;
+import com.itechart.orderplanningproblem.error.exception.ResourceNotFoundException;
 import com.itechart.orderplanningproblem.repository.DistanceRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -64,30 +66,42 @@ class DistanceServiceTest {
         // given
         Long distanceId = 1L;
         Double distanceValue = 4432.186613415447;
+        Location customerLocation = Location.builder()
+                .latitude(55.0055)
+                .longitude(24.454732)
+                .build();
+        LocationDto customerLocationDto = LocationDto.builder()
+                .latitude(55.0055)
+                .longitude(24.454732)
+                .build();
+        Location warehouseLocation = Location.builder()
+                .latitude(22.12345)
+                .longitude(54.6688)
+                .build();
+        LocationDto warehouseLocationDto = LocationDto.builder()
+                .latitude(22.12345)
+                .longitude(54.6688)
+                .build();
         Customer customer = Customer.builder()
                 .id(1L)
                 .name("Customer")
-                .latitude(55.0055)
-                .longitude(24.454732)
+                .location(customerLocation)
                 .build();
-        CustomerDtoWithId customerDto = CustomerDtoWithId.builder()
+        CustomerDto customerDto = CustomerDto.builder()
                 .id(1L)
                 .name("Customer")
-                .latitude(55.0055)
-                .longitude(24.454732)
+                .location(customerLocationDto)
                 .build();
         Warehouse warehouse = Warehouse.builder()
                 .id(1L)
-                .identifier("Warehouse")
-                .latitude(22.12345)
-                .longitude(54.6688)
+                .name("Warehouse")
+                .location(warehouseLocation)
                 .items(new ArrayList<>())
                 .build();
-        WarehouseDtoWithId warehouseDto = WarehouseDtoWithId.builder()
+        WarehouseDto warehouseDto = WarehouseDto.builder()
                 .id(1L)
-                .identifier("Warehouse")
-                .latitude(22.12345)
-                .longitude(54.6688)
+                .name("Warehouse")
+                .location(warehouseLocationDto)
                 .items(new ArrayList<>())
                 .build();
         Distance distance = Distance.builder()
@@ -96,7 +110,7 @@ class DistanceServiceTest {
                 .customer(customer)
                 .warehouse(warehouse)
                 .build();
-        DistanceWithIdDto distanceDto = DistanceWithIdDto.builder()
+        DistanceDto distanceDto = DistanceDto.builder()
                 .id(distanceId)
                 .distanceValue(distanceValue)
                 .customer(customerDto)
@@ -104,7 +118,7 @@ class DistanceServiceTest {
                 .build();
         // when
         Mockito.when(distanceRepository.findById(distanceId)).thenReturn(Optional.of(distance));
-        Mockito.when(objectMapper.convertValue(distance, DistanceWithIdDto.class))
+        Mockito.when(objectMapper.convertValue(distance, DistanceDto.class))
                 .thenReturn(distanceDto);
 
         // then

@@ -1,9 +1,8 @@
 package com.itechart.orderplanningproblem.controller;
 
-import com.itechart.orderplanningproblem.dto.ItemDtoWithId;
-import com.itechart.orderplanningproblem.dto.ItemDtoWithoutId;
-import com.itechart.orderplanningproblem.exception.ResourceNotFoundException;
-import com.itechart.orderplanningproblem.exception.UnprocessableEntityException;
+import com.itechart.orderplanningproblem.dto.ItemDto;
+import com.itechart.orderplanningproblem.error.exception.ResourceNotFoundException;
+import com.itechart.orderplanningproblem.error.exception.UnprocessableEntityException;
 import com.itechart.orderplanningproblem.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -38,13 +37,14 @@ public class ItemController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ItemDtoWithId createItem(@Valid @RequestBody ItemDtoWithoutId itemDto) throws UnprocessableEntityException {
+    public ItemDto createItem(@Valid @RequestBody ItemDto itemDto) throws UnprocessableEntityException {
+        itemDto.setId(null);
         return itemService.create(itemDto);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ItemDtoWithId updateItemName(
+    public ItemDto updateItemName(
             @Min(value = 1, message = "id must be more or equals 1")
             @PathVariable Long id,
             @Pattern(regexp = "^[A-Z][0-9A-Za-z\\s-]*$", message = "Name should match pattern ^[A-Z][0-9A-Za-z\\s-]*$")
@@ -56,14 +56,14 @@ public class ItemController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Page<ItemDtoWithId> getPage(
+    public Page<ItemDto> getPage(
             @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
         return itemService.readPage(pageable);
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ItemDtoWithId getById(
+    public ItemDto getById(
             @Min(value = 1, message = "id must be more or equals 1")
             @PathVariable Long id) throws ResourceNotFoundException {
         return itemService.readById(id);
@@ -75,12 +75,6 @@ public class ItemController {
             @Min(value = 1, message = "id must be more or equals 1")
             @PathVariable Long id) {
         itemService.deleteById(id);
-    }
-
-    @DeleteMapping
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteByName(@RequestParam String name) {
-        itemService.deleteByName(name);
     }
 
 }

@@ -1,11 +1,12 @@
 package com.itechart.orderplanningproblem.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itechart.orderplanningproblem.dto.CustomerDtoWithId;
-import com.itechart.orderplanningproblem.dto.CustomerDtoWithoutId;
+import com.itechart.orderplanningproblem.dto.CustomerDto;
+import com.itechart.orderplanningproblem.dto.LocationDto;
 import com.itechart.orderplanningproblem.entity.Customer;
-import com.itechart.orderplanningproblem.exception.ResourceNotFoundException;
-import com.itechart.orderplanningproblem.exception.UnprocessableEntityException;
+import com.itechart.orderplanningproblem.entity.Location;
+import com.itechart.orderplanningproblem.error.exception.ResourceNotFoundException;
+import com.itechart.orderplanningproblem.error.exception.UnprocessableEntityException;
 import com.itechart.orderplanningproblem.repository.CustomerRepository;
 import com.itechart.orderplanningproblem.repository.DistanceRepository;
 import com.itechart.orderplanningproblem.repository.WarehouseRepository;
@@ -59,17 +60,19 @@ class CustomerServiceTest {
         String customerNewName = "New name";
         Double latitude = 55.0055;
         Double longitude = 24.454732;
+        Location customerLocation = Location.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
         Customer customerInDbById = Customer.builder()
                 .id(customerId)
                 .name("Old item name")
-                .latitude(latitude)
-                .longitude(longitude)
+                .location(customerLocation)
                 .build();
         Customer customerInDbByName = Customer.builder()
                 .id(2L)
                 .name(customerNewName)
-                .latitude(latitude)
-                .longitude(longitude)
+                .location(customerLocation)
                 .build();
         // when
         Mockito.when(customerRepository.findById(customerId)).thenReturn(Optional.of(customerInDbById));
@@ -88,32 +91,37 @@ class CustomerServiceTest {
         String customerNewName = "New name";
         Double latitude = 55.0055;
         Double longitude = 24.454732;
+        Location customerLocation = Location.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
+        LocationDto customerLocationDto = LocationDto.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
         Customer customerInDbById = Customer.builder()
                 .id(customerId)
                 .name("Old item name")
-                .latitude(latitude)
-                .longitude(longitude)
+                .location(customerLocation)
                 .build();
         Customer customerInDbAfterNameWasChanged = Customer.builder()
                 .id(customerId)
                 .name(customerNewName)
-                .latitude(latitude)
-                .longitude(longitude)
+                .location(customerLocation)
                 .build();
-        CustomerDtoWithId customerDtoWithId = CustomerDtoWithId.builder()
+        CustomerDto customerDto = CustomerDto.builder()
                 .id(customerId)
                 .name(customerNewName)
-                .latitude(latitude)
-                .longitude(longitude)
+                .location(customerLocationDto)
                 .build();
         // when
         Mockito.when(customerRepository.findById(customerId)).thenReturn(Optional.of(customerInDbById));
         Mockito.when(customerRepository.readByName(customerNewName)).thenReturn(Optional.empty());
         Mockito.when(customerRepository.save(customerInDbById)).thenReturn(customerInDbAfterNameWasChanged);
-        Mockito.when(objectMapper.convertValue(customerInDbAfterNameWasChanged, CustomerDtoWithId.class))
-                .thenReturn(customerDtoWithId);
+        Mockito.when(objectMapper.convertValue(customerInDbAfterNameWasChanged, CustomerDto.class))
+                .thenReturn(customerDto);
         // then
-        Assertions.assertEquals(customerDtoWithId, customerService.updateName(customerId, customerNewName));
+        Assertions.assertEquals(customerDto, customerService.updateName(customerId, customerNewName));
 
     }
 
@@ -135,21 +143,27 @@ class CustomerServiceTest {
         String customerName = "Customer";
         Double latitude = 55.0055;
         Double longitude = 24.454732;
+        Location customerLocation = Location.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
+        LocationDto customerLocationDto = LocationDto.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
         Customer customer = Customer.builder()
                 .id(customerId)
                 .name(customerName)
-                .latitude(latitude)
-                .longitude(longitude)
+                .location(customerLocation)
                 .build();
-        CustomerDtoWithId customerDto = CustomerDtoWithId.builder()
+        CustomerDto customerDto = CustomerDto.builder()
                 .id(customerId)
                 .name(customerName)
-                .latitude(latitude)
-                .longitude(longitude)
+                .location(customerLocationDto)
                 .build();
         // when
         Mockito.when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
-        Mockito.when(objectMapper.convertValue(customer, CustomerDtoWithId.class))
+        Mockito.when(objectMapper.convertValue(customer, CustomerDto.class))
                 .thenReturn(customerDto);
 
         // then
@@ -165,25 +179,31 @@ class CustomerServiceTest {
         String customerName = "Customer";
         Double latitude = 55.0055;
         Double longitude = 24.454732;
+        Location customerLocation = Location.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
+        LocationDto customerLocationDto = LocationDto.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
         Customer customer = Customer.builder()
                 .id(customerId)
                 .name(customerName)
-                .latitude(latitude)
-                .longitude(longitude)
+                .location(customerLocation)
                 .build();
-        CustomerDtoWithId customerDto = CustomerDtoWithId.builder()
+        CustomerDto customerDto = CustomerDto.builder()
                 .id(customerId)
                 .name(customerName)
-                .latitude(latitude)
-                .longitude(longitude)
+                .location(customerLocationDto)
                 .build();
         List<Customer> customerList = Collections.singletonList(customer);
-        List<CustomerDtoWithId> customerDtoWithIdList = Collections.singletonList(customerDto);
+        List<CustomerDto> customerDtoList = Collections.singletonList(customerDto);
         Page<Customer> customerPage = new PageImpl<>(customerList);
-        Page<CustomerDtoWithId> customerDtoWithIdPage = new PageImpl<>(customerDtoWithIdList);
+        Page<CustomerDto> customerDtoWithIdPage = new PageImpl<>(customerDtoList);
         // when
         Mockito.when(customerRepository.findAll(pageRequest)).thenReturn(customerPage);
-        Mockito.when(objectMapper.convertValue(customer, CustomerDtoWithId.class))
+        Mockito.when(objectMapper.convertValue(customer, CustomerDto.class))
                 .thenReturn(customerDto);
         // then
         Assertions.assertEquals(customerDtoWithIdPage, customerService.readPage(pageRequest));
@@ -197,28 +217,32 @@ class CustomerServiceTest {
         String customerName = "Customer";
         Double latitude = 55.0055;
         Double longitude = 24.454732;
+        Location customerLocation = Location.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
+        LocationDto customerLocationDto = LocationDto.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
         Customer customer = Customer.builder()
                 .id(customerId)
                 .name(customerName)
-                .latitude(latitude)
-                .longitude(longitude)
+                .location(customerLocation)
                 .build();
         Customer createdCustomer = Customer.builder()
                 .id(customerId)
                 .name(customerName)
-                .latitude(latitude)
-                .longitude(longitude)
+                .location(customerLocation)
                 .build();
-        CustomerDtoWithoutId customerDtoToBeCreated = CustomerDtoWithoutId.builder()
+        CustomerDto customerDtoToBeCreated = CustomerDto.builder()
                 .name(customerName)
-                .latitude(latitude)
-                .longitude(longitude)
+                .location(customerLocationDto)
                 .build();
-        CustomerDtoWithId createdCustomerDto = CustomerDtoWithId.builder()
+        CustomerDto createdCustomerDto = CustomerDto.builder()
                 .id(customerId)
                 .name(customerName)
-                .latitude(latitude)
-                .longitude(longitude)
+                .location(customerLocationDto)
                 .build();
         // when
         Mockito.when(customerRepository.readByName(customerName)).thenReturn(Optional.empty());
@@ -227,7 +251,7 @@ class CustomerServiceTest {
         Mockito.when(warehouseRepository.findAll()).thenReturn(Collections.emptyList());
         Mockito.when(distanceRepository.saveAll(new ArrayList<>())).thenReturn(Collections.emptyList());
         Mockito.when(customerRepository.save(customer)).thenReturn(createdCustomer);
-        Mockito.when(objectMapper.convertValue(createdCustomer, CustomerDtoWithId.class))
+        Mockito.when(objectMapper.convertValue(createdCustomer, CustomerDto.class))
                 .thenReturn(createdCustomerDto);
 
         // then

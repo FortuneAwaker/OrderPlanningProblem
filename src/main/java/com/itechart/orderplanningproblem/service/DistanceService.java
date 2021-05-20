@@ -1,8 +1,8 @@
 package com.itechart.orderplanningproblem.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itechart.orderplanningproblem.dto.DistanceWithIdDto;
-import com.itechart.orderplanningproblem.exception.ResourceNotFoundException;
+import com.itechart.orderplanningproblem.dto.DistanceDto;
+import com.itechart.orderplanningproblem.error.exception.ResourceNotFoundException;
 import com.itechart.orderplanningproblem.repository.DistanceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,9 +14,9 @@ public class DistanceService {
     private final DistanceRepository distanceRepository;
     private final ObjectMapper objectMapper;
 
-    public DistanceWithIdDto readById(final Long id) throws ResourceNotFoundException {
+    public DistanceDto readById(final Long id) throws ResourceNotFoundException {
         return distanceRepository.findById(id).map(
-                distance -> objectMapper.convertValue(distance, DistanceWithIdDto.class))
+                distance -> objectMapper.convertValue(distance, DistanceDto.class))
                 .orElseThrow(() -> new ResourceNotFoundException("Distance with id = " + id + " doesn't exist"));
     }
 

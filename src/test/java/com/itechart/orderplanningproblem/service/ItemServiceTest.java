@@ -1,11 +1,10 @@
 package com.itechart.orderplanningproblem.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itechart.orderplanningproblem.dto.ItemDtoWithId;
-import com.itechart.orderplanningproblem.dto.ItemDtoWithoutId;
+import com.itechart.orderplanningproblem.dto.ItemDto;
 import com.itechart.orderplanningproblem.entity.Item;
-import com.itechart.orderplanningproblem.exception.ResourceNotFoundException;
-import com.itechart.orderplanningproblem.exception.UnprocessableEntityException;
+import com.itechart.orderplanningproblem.error.exception.ResourceNotFoundException;
+import com.itechart.orderplanningproblem.error.exception.UnprocessableEntityException;
 import com.itechart.orderplanningproblem.repository.ItemRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -80,7 +79,7 @@ class ItemServiceTest {
                 .id(itemId)
                 .name(itemNewName)
                 .build();
-        ItemDtoWithId itemDtoWithId = ItemDtoWithId.builder()
+        ItemDto itemDto = ItemDto.builder()
                 .id(itemId)
                 .name(itemNewName)
                 .build();
@@ -88,10 +87,10 @@ class ItemServiceTest {
         Mockito.when(itemRepository.findById(itemId)).thenReturn(Optional.of(itemInDbById));
         Mockito.when(itemRepository.readByName(itemNewName)).thenReturn(Optional.empty());
         Mockito.when(itemRepository.save(itemInDbById)).thenReturn(itemInDbAfterNameWasChanged);
-        Mockito.when(objectMapper.convertValue(itemInDbAfterNameWasChanged, ItemDtoWithId.class))
-                .thenReturn(itemDtoWithId);
+        Mockito.when(objectMapper.convertValue(itemInDbAfterNameWasChanged, ItemDto.class))
+                .thenReturn(itemDto);
         // then
-        Assertions.assertEquals(itemDtoWithId, itemService.updateName(itemId, itemNewName));
+        Assertions.assertEquals(itemDto, itemService.updateName(itemId, itemNewName));
 
     }
 
@@ -115,13 +114,13 @@ class ItemServiceTest {
                 .id(itemId)
                 .name(itemName)
                 .build();
-        ItemDtoWithId itemDto = ItemDtoWithId.builder()
+        ItemDto itemDto = ItemDto.builder()
                 .id(itemId)
                 .name(itemName)
                 .build();
         // when
         Mockito.when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-        Mockito.when(objectMapper.convertValue(item, ItemDtoWithId.class))
+        Mockito.when(objectMapper.convertValue(item, ItemDto.class))
                 .thenReturn(itemDto);
 
         // then
@@ -139,17 +138,17 @@ class ItemServiceTest {
                 .id(itemId)
                 .name(itemName)
                 .build();
-        ItemDtoWithId itemDto = ItemDtoWithId.builder()
+        ItemDto itemDto = ItemDto.builder()
                 .id(itemId)
                 .name(itemName)
                 .build();
         List<Item> itemList = Collections.singletonList(item);
-        List<ItemDtoWithId> itemDtoWithIdList = Collections.singletonList(itemDto);
+        List<ItemDto> itemDtoList = Collections.singletonList(itemDto);
         Page<Item> itemPage = new PageImpl<>(itemList);
-        Page<ItemDtoWithId> itemDtoWithIdPage = new PageImpl<>(itemDtoWithIdList);
+        Page<ItemDto> itemDtoWithIdPage = new PageImpl<>(itemDtoList);
         // when
         Mockito.when(itemRepository.findAll(pageRequest)).thenReturn(itemPage);
-        Mockito.when(objectMapper.convertValue(item, ItemDtoWithId.class))
+        Mockito.when(objectMapper.convertValue(item, ItemDto.class))
                 .thenReturn(itemDto);
         // then
         Assertions.assertEquals(itemDtoWithIdPage, itemService.readPage(pageRequest));
@@ -168,10 +167,10 @@ class ItemServiceTest {
                 .id(itemId)
                 .name(itemName)
                 .build();
-        ItemDtoWithoutId itemDtoToBeCreated = ItemDtoWithoutId.builder()
+        ItemDto itemDtoToBeCreated = ItemDto.builder()
                 .name(itemName)
                 .build();
-        ItemDtoWithId createdItemDto = ItemDtoWithId.builder()
+        ItemDto createdItemDto = ItemDto.builder()
                 .id(itemId)
                 .name(itemName)
                 .build();
@@ -180,7 +179,7 @@ class ItemServiceTest {
         Mockito.when(objectMapper.convertValue(itemDtoToBeCreated, Item.class))
                 .thenReturn(item);
         Mockito.when(itemRepository.save(item)).thenReturn(createdItem);
-        Mockito.when(objectMapper.convertValue(createdItem, ItemDtoWithId.class))
+        Mockito.when(objectMapper.convertValue(createdItem, ItemDto.class))
                 .thenReturn(createdItemDto);
 
         // then

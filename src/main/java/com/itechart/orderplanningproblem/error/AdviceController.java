@@ -1,9 +1,9 @@
-package com.itechart.orderplanningproblem.controller;
+package com.itechart.orderplanningproblem.error;
 
 import com.itechart.orderplanningproblem.dto.ExceptionDto;
-import com.itechart.orderplanningproblem.exception.ConflictWithCurrentWarehouseStateException;
-import com.itechart.orderplanningproblem.exception.ResourceNotFoundException;
-import com.itechart.orderplanningproblem.exception.UnprocessableEntityException;
+import com.itechart.orderplanningproblem.error.exception.ConflictWithCurrentWarehouseStateException;
+import com.itechart.orderplanningproblem.error.exception.ResourceNotFoundException;
+import com.itechart.orderplanningproblem.error.exception.UnprocessableEntityException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
