@@ -16,7 +16,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class WarehouseItemDtoWithId {
+public class WarehouseItemDto {
 
     @Min(value = 1, message = "Id can't be less than 1!")
     private Long id;
@@ -24,6 +24,6 @@ public class WarehouseItemDtoWithId {
     @DecimalMin(value = "0.0", message = "Amount can't be less than 0!")
     private Double amount;
     @Valid
-    private ItemDtoWithId item;
+    private ItemDto item;
 
 }

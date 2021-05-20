@@ -1,9 +1,8 @@
 package com.itechart.orderplanningproblem.controller;
 
-import com.itechart.orderplanningproblem.dto.CustomerDtoWithId;
-import com.itechart.orderplanningproblem.dto.CustomerDtoWithoutId;
-import com.itechart.orderplanningproblem.exception.ResourceNotFoundException;
-import com.itechart.orderplanningproblem.exception.UnprocessableEntityException;
+import com.itechart.orderplanningproblem.dto.CustomerDto;
+import com.itechart.orderplanningproblem.error.exception.ResourceNotFoundException;
+import com.itechart.orderplanningproblem.error.exception.UnprocessableEntityException;
 import com.itechart.orderplanningproblem.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -38,14 +37,15 @@ public class CustomerController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CustomerDtoWithId createCustomer(@Valid @RequestBody CustomerDtoWithoutId customerDto)
+    public CustomerDto createCustomer(@Valid @RequestBody CustomerDto customerDto)
             throws UnprocessableEntityException {
+        customerDto.setId(null);
         return customerService.create(customerDto);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public CustomerDtoWithId updateCustomerName(
+    public CustomerDto updateCustomerName(
             @Min(value = 1, message = "id must be more or equals 1")
             @PathVariable Long id,
             @Pattern(regexp = "^[A-Z][0-9A-Za-z\\s-]*$", message = "Name should match pattern ^[A-Z][0-9A-Za-z\\s-]*$")
@@ -57,14 +57,14 @@ public class CustomerController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Page<CustomerDtoWithId> getPage(
+    public Page<CustomerDto> getPage(
             @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
         return customerService.readPage(pageable);
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public CustomerDtoWithId getById(@PathVariable @Min(value = 1,
+    public CustomerDto getById(@PathVariable @Min(value = 1,
             message = "id must be more or equals 1") Long id) throws ResourceNotFoundException {
         return customerService.readById(id);
     }

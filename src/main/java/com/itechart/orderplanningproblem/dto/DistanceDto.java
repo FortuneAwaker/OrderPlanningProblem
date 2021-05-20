@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class DistanceWithIdDto {
+public class DistanceDto {
 
     @Min(value = 1, message = "Id can't be less than 1!")
     private Long id;
@@ -22,8 +22,8 @@ public class DistanceWithIdDto {
     @DecimalMin(value = "0.0", message = "Distance can't be less than 0!")
     private Double distanceValue;
     @Valid
-    private WarehouseDtoWithId warehouse;
+    private WarehouseDto warehouse;
     @Valid
-    private CustomerDtoWithId customer;
+    private CustomerDto customer;
 
 }

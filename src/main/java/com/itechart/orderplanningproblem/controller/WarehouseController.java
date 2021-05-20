@@ -1,12 +1,12 @@
 package com.itechart.orderplanningproblem.controller;
 
-import com.itechart.orderplanningproblem.dto.WarehouseDtoWithId;
-import com.itechart.orderplanningproblem.dto.WarehouseDtoWithoutId;
+import com.itechart.orderplanningproblem.dto.Operation;
+import com.itechart.orderplanningproblem.dto.WarehouseDto;
 import com.itechart.orderplanningproblem.dto.WarehouseItemChangeAmountDto;
-import com.itechart.orderplanningproblem.dto.WarehouseItemDtoWithoutId;
-import com.itechart.orderplanningproblem.exception.ConflictWithCurrentWarehouseStateException;
-import com.itechart.orderplanningproblem.exception.ResourceNotFoundException;
-import com.itechart.orderplanningproblem.exception.UnprocessableEntityException;
+import com.itechart.orderplanningproblem.dto.WarehouseItemDto;
+import com.itechart.orderplanningproblem.error.exception.ConflictWithCurrentWarehouseStateException;
+import com.itechart.orderplanningproblem.error.exception.ResourceNotFoundException;
+import com.itechart.orderplanningproblem.error.exception.UnprocessableEntityException;
 import com.itechart.orderplanningproblem.service.WarehouseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -41,47 +41,48 @@ public class WarehouseController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public WarehouseDtoWithId createWarehouse(@Valid @RequestBody WarehouseDtoWithoutId warehouseDtoWithoutId)
+    public WarehouseDto createWarehouse(@Valid @RequestBody WarehouseDto warehouseDto)
             throws UnprocessableEntityException {
-        return warehouseService.create(warehouseDtoWithoutId);
+        warehouseDto.setId(null);
+        return warehouseService.create(warehouseDto);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public WarehouseDtoWithId updateWarehouseIdentifier(
+    public WarehouseDto updateWarehouseName(
             @Min(value = 1, message = "id must be more or equals 1")
             @PathVariable Long id,
             @Pattern(regexp = "^[A-Z][0-9A-Za-z\\s-]*$",
                     message = "Identifier should match pattern ^[A-Z][0-9A-Za-z\\s-]*$")
             @Size(min = 3, max = 50, message = "Identifier should be longer than 3 letters and shorter than 50.")
-            @RequestParam String newIdentifier)
+            @RequestParam String newName)
             throws ResourceNotFoundException, UnprocessableEntityException {
-        return warehouseService.updateIdentifier(id, newIdentifier);
+        return warehouseService.updateName(id, newName);
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Page<WarehouseDtoWithId> getPage(
+    public Page<WarehouseDto> getPage(
             @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
         return warehouseService.readPage(pageable);
     }
 
     @GetMapping("/{id}")
-    public WarehouseDtoWithId getById(
+    public WarehouseDto getById(
             @Min(value = 1, message = "id must be more or equals 1")
             @PathVariable Long id) throws ResourceNotFoundException {
         return warehouseService.readById(id);
     }
 
     @PutMapping("/{warehouseId}/item")
-    public WarehouseDtoWithId putItemToWarehouse(
-            @Valid @RequestBody WarehouseItemDtoWithoutId warehouseItemDtoWithoutId,
+    public WarehouseDto putItemToWarehouse(
+            @Valid @RequestBody WarehouseItemDto warehouseItemDto,
             @Min(value = 1, message = "id must be more or equals 1")
             @PathVariable Long warehouseId,
-            @RequestParam String operation)
+            @RequestParam Operation operation)
             throws ResourceNotFoundException, ConflictWithCurrentWarehouseStateException, UnprocessableEntityException {
         return warehouseService.changeAmountOfWarehouseItem(new WarehouseItemChangeAmountDto(warehouseId,
-                warehouseItemDtoWithoutId.getAmount(), warehouseItemDtoWithoutId.getItem(), operation));
+                warehouseItemDto.getAmount(), warehouseItemDto.getItem(), operation));
     }
 
     @DeleteMapping("/{id}")
@@ -90,12 +91,6 @@ public class WarehouseController {
             @Min(value = 1, message = "id must be more or equals 1")
             @PathVariable Long id) {
         warehouseService.deleteById(id);
-    }
-
-    @DeleteMapping
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteByIdentifier(@RequestParam String identifier) {
-        warehouseService.deleteByIdentifier(identifier);
     }
 
 }
