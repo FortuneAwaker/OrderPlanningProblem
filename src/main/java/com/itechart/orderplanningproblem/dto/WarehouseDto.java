@@ -24,8 +24,8 @@ public class WarehouseDto {
     @Min(value = 1, message = "Id can't be less than 1!")
     private Long id;
     @NotNull(message = "Warehouse name is mandatory!")
-    @Pattern(regexp = "^[A-Z][0-9A-Za-z\\s-]*$", message = "Identifier should match pattern ^[A-Z][0-9A-Za-z\\s-]*$")
-    @Size(min = 3, max = 50, message = "Identifier should be longer than 3 letters and shorter than 50.")
+    @Pattern(regexp = "^[A-Z][0-9A-Za-z\\s-]*$", message = "Name should match pattern ^[A-Z][0-9A-Za-z\\s-]*$")
+    @Size(min = 3, max = 50, message = "Name should be longer than 3 letters and shorter than 50.")
     private String name;
     @Valid
     @NotNull(message = "Location is mandatory!")

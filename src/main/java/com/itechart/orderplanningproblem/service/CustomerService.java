@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -43,14 +44,12 @@ public class CustomerService {
 
     private void mapCustomerToExistentWarehouses(final Customer customer) {
         List<Warehouse> allWarehouses = warehouseRepository.findAll();
-        List<Distance> distances = new ArrayList<>();
-        allWarehouses.forEach((warehouse -> {
+        List<Distance> distances = allWarehouses.stream().map(warehouse -> {
             double distanceValue = distanceService.getDistanceByLatitudeAndLongitude(
                     customer.getLocation().getLatitude(), customer.getLocation().getLongitude(),
                     warehouse.getLocation().getLatitude(), warehouse.getLocation().getLongitude());
-            Distance distance = new Distance(null, distanceValue, customer, warehouse);
-            distances.add(distance);
-        }));
+            return new Distance(null, distanceValue, customer, warehouse);
+        }).collect(Collectors.toList());
         distanceRepository.saveAll(distances);
     }
 
